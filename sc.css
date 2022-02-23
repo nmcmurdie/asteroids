@@ -129,7 +129,8 @@ html {
    width: 4px;
    height: 50px;
    background: green;
-   filter: blur(1px);
+   box-shadow: 0 0 10px green;
+   border-radius: 4px;
 }
 .laser-advanced {
    background-color: red;
