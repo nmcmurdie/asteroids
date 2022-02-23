@@ -1,0 +1,148 @@
+@font-face {
+    font-family: pixel;
+    src: url('res/pixelFont.TTF');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+:root {
+   --background-color: #2c2e3c;
+   --text-color: #fff;
+   --text-secondary: #e5e5e5;
+   --slider-size: 80px;
+}
+
+html {
+   background-color: var(--background-color);
+   margin: 0;
+   font-family: pixel, arial;
+   image-rendering: pixelated;
+}
+
+.pane {
+   position: absolute;
+   height: 100%;
+   width: 450px;
+   left: 50%;
+   top: 0;
+   transform: translateX(-50%);
+   background: #1A237E;
+   box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+}
+.pane::after {
+   content: "";
+   position: absolute;
+   width: 100%;
+   height: 100%;
+   background-color: #e8416b;
+   opacity: 0;
+}
+.pane.damage-shield::after {
+   background-color: #283593;
+}
+.pane.animate::after {
+   animation: damage .4s;
+}
+@keyframes damage {
+   0% {
+      opacity: 0;
+   }
+
+   50% {
+      opacity: .5;
+   }
+
+   100% {
+      opacity: 0;
+   }
+}
+
+.hud {
+   position: absolute;
+   right: 0;
+   height: 50px;
+   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, .9));
+}
+.hud-elem {
+   display: inline-block;
+   height: 100%;
+   line-height: 50px;
+   font-size: 22px;
+   color: var(--text-color);
+   padding: 0 10px 0 34px;
+   text-align: right;
+   background-image: url(res/health.png);
+   background-size: 30px 30px;
+   background-position: left center;
+   background-repeat: no-repeat;
+   vertical-align: middle;
+}
+.hud-money {
+   background-image: url(res/money.png);
+   background-size: 26px 26px;
+}
+.hud-level {
+   background-size: 40px 40px;
+}
+.hud-shield {
+   background-image: url(res/shield.png);
+   background-size: 26px 26px;
+   display: none;
+}
+
+.map {
+   position: absolute;
+   width: 100%;
+   height: calc(100% - var(--slider-size) - 10px);
+}
+.game-object {
+   position: absolute;
+   position: absolute;
+   transform: translate(-50%, -100%);
+   background-repeat: no-repeat;
+   background-position: center;
+   background-size: 100%;
+}
+
+.slider {
+   position: absolute;
+   width: 100%;
+   height: var(--slider-size);
+   padding-bottom: 10px;
+   bottom: 0;
+}
+.shooter {
+   position: absolute;
+   left: 50%;
+   width: var(--slider-size);
+   height: var(--slider-size);
+   background-image: url(res/rocket_basic.png);
+   background-position: center 0;
+   background-repeat: no-repeat;
+   background-size: 70% auto;
+   transform: translateX(-50%);
+   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4));
+}
+
+.projectile-laser {
+   width: 4px;
+   height: 50px;
+   background: green;
+   filter: blur(1px);
+}
+.laser-advanced {
+   background-color: red;
+   height: 80px;
+}
+
+.asteroid {
+   width: 50px;
+   height: 50px;
+   background-image: url(res/asteroid.png);
+}
+
+.gunBoost {
+   width: 40px;
+   height: 40px;
+   background-image: url(res/gunBoost.png);
+}

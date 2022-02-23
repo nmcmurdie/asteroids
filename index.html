@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Asteroids</title>
+      <link rel="stylesheet" href="sc.css" />
+      <link rel="icon" href="res/moon.png" />
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+   </head>
+   <body>
+      <div class="pane pane-main" id="pane_main">
+         <div class="map" id="game_map"></div>
+         <div class="hud">
+            <div class="hud-elem hud-shield" id="hud_shield"></div>
+            <div class="hud-elem hud-health" id="hud_health"></div>
+            <div class="hud-elem hud-money" id="hud_money"></div>
+            <div class="hud-elem hud-level" id="hud_level"></div>
+         </div>
+         <div class="slider">
+            <div class="shooter" id="game_shooter"></div>
+         </div>
+      </div>
+   </body>
+   <script src="game.js"></script>
+   <script src="logic.js" async></script>
+</html>
