@@ -118,7 +118,7 @@ function finishStage() {
    else finishLevel(currentLevel);
 }
 
-function finishLevel(level) {
+function finishLevel() {
    console.log("Finished level");
    if (game.currentLevel + 1 < game.levels.length) {
       startLevel(game.levels[++game.currentLevel]);
