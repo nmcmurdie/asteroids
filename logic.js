@@ -11,7 +11,7 @@ window.addEventListener("load", () => {
    updateHUD();
    updateSliderPos(true);
    gameLoop = setInterval(tick, game.TICK_SPEED);
-   // startLevel(game.levels[game.currentLevel]);
+   startLevel(game.levels[game.currentLevel]);
 });
 
 window.addEventListener("keydown", handleKeypress);
