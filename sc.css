@@ -114,11 +114,14 @@ html {
    bottom: 0;
 }
 .mobile-controls {
+   position: absolute;
    width: 100%;
    height: 100%;
-   position: absolute;
    z-index: 1;
    opacity: .4;
+}
+.mobile-controls.hidden {
+   display: none;
 }
 .mobile-control {
    position: absolute;
