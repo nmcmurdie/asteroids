@@ -17,6 +17,7 @@ html {
    margin: 0;
    font-family: pixel, arial;
    image-rendering: pixelated;
+   overflow: hidden;
 }
 
 .pane {
@@ -121,16 +122,13 @@ html {
 }
 .mobile-control {
    position: absolute;
-   width: 33%;
+   width: 33.3%;
    height: 100%;
    background-color: red;
 }
-.control-fire {
-   left: 33.5%;
-   background-color: purple;
-}
-.control-right {
-   left: 67%;
+.control-movement {
+   left: 33.3%;
+   width: 66.7%;
    background-color: blue;
 }
 .shooter {

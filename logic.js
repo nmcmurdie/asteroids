@@ -1,5 +1,6 @@
 'use strict'
-var gameLoop, currentStage, stageFinished = false;
+var gameLoop, currentStage, moveControlX, moveControlThreshold;
+var stageFinished = false;
 
 window.addEventListener("load", () => {
    let board = document.getElementById("game_map");
@@ -29,16 +30,32 @@ Array.prototype.remove = function() {
 }
 
 function detectMobile() {
-   let leftControl = document.getElementById("control_left"),
-         rightControl = document.getElementById("control_right"),
-         fireControl = document.getElementById("control_fire");
+   let moveControl = document.getElementById("control_movement"),
+      fireControl = document.getElementById("control_fire");
+   let controlBox = moveControl.getBoundingClientRect();
+   moveControlX = controlBox.left;
+   moveControlThreshold = controlBox.width / 2;
 
-   leftControl.addEventListener("touchstart", () => controls.holdingLeft = true, {passive: true});
-   leftControl.addEventListener("touchend", () => controls.holdingLeft = false, {passive: true});
-   rightControl.addEventListener("touchstart", () => controls.holdingRight = true, {passive: true});
-   rightControl.addEventListener("touchend", () => controls.holdingRight = false, {passive: true});
+   moveControl.addEventListener("touchstart", processMovement, {passive: true});
+   moveControl.addEventListener("touchmove", processMovement, {passive: true});
+   moveControl.addEventListener("touchend", () => {
+      controls.holdingLeft = false;
+      controls.holdingRight = false;
+   }, {passive: true});
    fireControl.addEventListener("touchstart", () => controls.holdingFire = true, {passive: true});
    fireControl.addEventListener("touchend", () => controls.holdingFire = false, {passive: true});
+}
+
+function processMovement(evt) {
+   let x = evt.touches[0].clientX - moveControlX;
+   if (x >= moveControlThreshold) {
+      controls.holdingRight = true;
+      controls.holdingLeft = false;
+   }
+   else {
+      controls.holdingRight = false;
+      controls.holdingLeft = true;
+   }
 }
 
 function handleKeypress(evt) {
