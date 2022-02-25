@@ -7,10 +7,11 @@ window.addEventListener("load", () => {
    game.BOARD_HEIGHT = board.clientHeight;
    controls.playerPos = game.BOARD_WIDTH / 2;
 
+   detectMobile();
    updateHUD();
    updateSliderPos(true);
    gameLoop = setInterval(tick, game.TICK_SPEED);
-   startLevel(game.levels[game.currentLevel]);
+   // startLevel(game.levels[game.currentLevel]);
 });
 
 window.addEventListener("keydown", handleKeypress);
@@ -25,6 +26,19 @@ Array.prototype.remove = function() {
       }
    }
    return this;
+}
+
+function detectMobile() {
+   let leftControl = document.getElementById("control_left"),
+         rightControl = document.getElementById("control_right"),
+         fireControl = document.getElementById("control_fire");
+
+   leftControl.addEventListener("touchstart", () => controls.holdingLeft = true, {passive: true});
+   leftControl.addEventListener("touchend", () => controls.holdingLeft = false, {passive: true});
+   rightControl.addEventListener("touchstart", () => controls.holdingRight = true, {passive: true});
+   rightControl.addEventListener("touchend", () => controls.holdingRight = false, {passive: true});
+   fireControl.addEventListener("touchstart", () => controls.holdingFire = true, {passive: true});
+   fireControl.addEventListener("touchend", () => controls.holdingFire = false, {passive: true});
 }
 
 function handleKeypress(evt) {
