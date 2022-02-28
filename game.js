@@ -2,7 +2,7 @@
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
-   TICK_SPEED: 5,
+   TICK_SPEED: 4,
    health: 10,
    money: 0,
    score: 0,
@@ -13,7 +13,7 @@ const game = {
    levelFinished: false
 };
 const controls = {
-   SLIDER_SIZE: 80,
+   SLIDER_SIZE: 160,
    holdingLeft: false,
    holdingRight: false,
    holdingFire: false,
@@ -22,12 +22,15 @@ const controls = {
 };
 const currentShip = {
    widthPadding: 12,
-   speed: 2,
+   speed: 3,
+   width: 112,
+   height: 120,
+   icon: "rocket_basic",
    mainWeapon: {
       id: "laser_basic",
       fireRate: 400,
       fireCooldown: false,
-      projectileSpeed: 4,
+      projectileSpeed: 7,
       damage: 1,
       pierce: 1
    },
@@ -38,31 +41,42 @@ class GameObject {
    constructor(x, y, type, health) {
       this.x = x;
       this.y = y;
+      this.width = 0;
+      this.height = 0;
       this.health = health;
       this.type = type;
       this.dx = 0;
       this.id = Math.random().toString(16).slice(2);
    }
 
-   create() {
-      this.elem = document.createElement("div");
-      this.elem.classList.add("game-object", this.type);
-      this.elem.id = this.id;
+   getAsset() {
+      if (this.asset) return this.asset;
+      else {
+         let assetPath = `res/${this.type}.png`;
+         this.asset = new Image();
+         this.asset.src = assetPath;
+         return this.asset;
+      }
+   }
 
-      this.moveObject(this.elem, this);
-      addGameObject(this.elem, this);
+   create() {
+      this.getAsset();
+      addGameObject(this);
+   }
+
+   draw() {
+      getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
+      getCanvas().fillStyle = "red";
+      getCanvas().fillRect(this.x, this.y - 20, 20, 20);
    }
 
    moveObject() {
       this.x += this.dx;
       this.y += this.dy;
-      if (this.y > game.BOARD_HEIGHT || this.y < 0) {
+      if (this.y > game.BOARD_HEIGHT - controls.SLIDER_SIZE || this.y < 0) {
          this.destroy(true);
       }
-      else {
-         this.elem.style.left = this.x + "px";
-         this.elem.style.top = this.y + "px";
-      }
+      else this.draw();
    }
 
    hurt(damage) {
@@ -71,7 +85,6 @@ class GameObject {
    }
 
    destroy(hitBoundary) {
-      this.elem.remove();
       game.objects.remove(this);
 
       if (this.type !== "projectile" && isLastStageObject()) finishStage()
@@ -101,6 +114,8 @@ class BoosterItem extends GameObject {
 class GunBoost extends BoosterItem {
    constructor(x) {
       super(x, 0, "gunBoost", BoosterItem.BOOST_LONG);
+      this.width = 78;
+      this.height = 90;
    }
 
    use() {
@@ -121,12 +136,12 @@ class Asteroid extends GameObject {
       this.damage = sizeMultiplier;
       this.reward = reward == null ? sizeMultiplier : reward;
       this.dy = Math.max(1 / Math.pow(2, size - 1), .12);
+      this.width = this.size * 56;
+      this.height = this.size * 88;
    }
 
-   create() {
-      super.create();
-      this.elem.style.width = this.size * 28 + "px";
-      this.elem.style.height = this.size * 44 + "px";
+   draw() {
+      super.draw();
    }
 
    destroy(hitBoundary) {
@@ -147,17 +162,27 @@ class Projectile extends GameObject {
       this.damage = weapon.damage;
       this.dx = dx;
       this.dy = -1 * weapon.projectileSpeed;
+      this.width = 8;
+      this.height = 100;
+      this.y = y - this.height;
    }
 
    create() {
-      super.create();
+      addGameObject(this);
+   }
 
+   draw() {
       switch (this.weaponID) {
          case "laser_basic":
-            this.elem.classList.add("projectile-laser");
+            // getCanvas().shadowColor = "green";
+            // getCanvas().shadowBlur = 10;
+            // getCanvas().shadowY = 0;
+            getCanvas().fillStyle = "green";
+            getCanvas().fillRect(this.x, this.y, this.width, this.height);
             break;
          case "laser_advanced":
-            this.elem.classList.add("projectile-laser", "laser-advanced");
+            getCanvas().fillStyle = "red";
+            getCanvas().fillRect(this.x, this.y, this.width, this.height);
             break;
          default:
             console.error("Unknown projectile type");

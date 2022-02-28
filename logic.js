@@ -1,6 +1,18 @@
 'use strict'
-var gameLoop, currentStage, moveControlX, moveControlThreshold;
+var gameLoop, currentStage, moveControlX, moveControlThreshold, canvas, map;
 var stageFinished = false;
+
+const PIXEL_RATIO = (function () {
+   var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+            ctx.mozBackingStorePixelRatio ||
+            ctx.msBackingStorePixelRatio ||
+            ctx.oBackingStorePixelRatio ||
+            ctx.backingStorePixelRatio || 1;
+
+   return dpr / bsr;
+})();
 
 // Determine if user is on a mobile device
 function isMobile() {
@@ -22,20 +34,39 @@ Array.prototype.remove = function() {
 
 // Setup game
 window.addEventListener("load", () => {
-   let board = document.getElementById("game_map");
-   game.BOARD_WIDTH = board.clientWidth;
-   game.BOARD_HEIGHT = board.clientHeight;
    controls.playerPos = game.BOARD_WIDTH / 2;
 
    if (isMobile()) detectMobile();
    updateHUD();
-   updateSliderPos(true);
+   updateShip();
+   setupCanvas();
    gameLoop = setInterval(tick, game.TICK_SPEED);
    startLevel(game.levels[game.currentLevel]);
 });
 
 window.addEventListener("keydown", handleKeypress);
 window.addEventListener("keyup", handleKeypress);
+
+// Setup the game canvas
+function setupCanvas() {
+   canvas = document.getElementById("game_canvas");
+   let container = document.getElementById("game_map");
+
+   canvas.width = PIXEL_RATIO * container.clientWidth;
+   canvas.height = PIXEL_RATIO * container.clientHeight;
+   canvas.style.width = container.clientWidth + "px";
+   canvas.style.height = container.clientHeight + "px";
+   
+   map = canvas.getContext("2d");
+   map.imageSmoothingEnabled = false;
+
+   game.BOARD_WIDTH = canvas.width;
+   game.BOARD_HEIGHT = canvas.height;
+}
+
+function getCanvas() {
+   return map;
+}
 
 // Enable mobile controls
 function detectMobile() {
@@ -96,6 +127,7 @@ function handleKeypress(evt) {
 }
 
 function tick() {
+   map.clearRect(0, 0, canvas.width, canvas.height - controls.SLIDER_SIZE);
    if (controls.holdingLeft || controls.holdingRight) updateSliderPos(controls.holdingLeft);
    if (controls.holdingFire) fireWeapon(currentShip.mainWeapon);
    if (controls.holdingSecondaryFire) fireWeapon(currentShip.secondaryWeapon);
@@ -175,12 +207,10 @@ function finishLevel() {
 }
 
 function colliding(obj1, obj2) {
-   let rect1 = obj1.elem.getBoundingClientRect(),
-      rect2 = obj2.elem.getBoundingClientRect();
-   return rect1.top <= rect2.bottom
-         && rect1.bottom >= rect2.top
-         && rect1.left <= rect2.right
-         && rect1.right >= rect2.left;
+   return obj1.y >= obj2.y - obj2.height
+            && obj1.y <= obj2.y
+            && obj1.x <= obj2.x + obj2.width
+            && obj1.x + obj1.width >= obj2.x;
 }
 
 function updateHUD() {
@@ -199,22 +229,36 @@ function addShield(shield) {
    updateHUD();
 }
 
-function updateSliderPos(moveLeft) {
-   controls.playerPos = moveLeft ? Math.max(controls.playerPos - currentShip.speed, controls.SLIDER_SIZE / 2 - currentShip.widthPadding)
-                                 : Math.min(controls.playerPos + currentShip.speed, game.BOARD_WIDTH - controls.SLIDER_SIZE / 2 + currentShip.widthPadding);
-
-   document.getElementById("game_shooter").style.left = controls.playerPos + "px";
+// Retrieve new asset for player's ship
+function updateShip() {
+   currentShip.asset = new Image();
+   currentShip.asset.src = `res/${currentShip.icon}.png`;
+   currentShip.asset.onload = () => updateSliderPos(true);
 }
 
-function addGameObject(elem, object) {
-   document.getElementById("game_map").appendChild(elem);
+// Move the player's ship left or right
+function updateSliderPos(moveLeft) {
+   let shadowSize = 40;
+   map.clearRect(controls.playerPos - shadowSize / 2, game.BOARD_HEIGHT - controls.SLIDER_SIZE - shadowSize / 2, currentShip.width + shadowSize, currentShip.height + shadowSize);
+   controls.playerPos = moveLeft ? Math.max(controls.playerPos - currentShip.speed, 0)
+                                 : Math.min(controls.playerPos + currentShip.speed, game.BOARD_WIDTH - currentShip.width);
+
+   map.shadowColor = "rgba(0, 0, 0, .3)";
+   map.shadowBlur = 10;
+   map.shadowOffsetY = 5;
+   map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
+   map.shadowColor = "transparent";
+}
+
+function addGameObject(object) {
+   object.draw();
    game.objects.push(object);
 }
 
 function fireWeapon(weapon) {
    if (!weapon || weapon.fireCooldown) return;
    weapon.fireCooldown = true;
-   new Projectile(weapon, controls.playerPos, game.BOARD_HEIGHT, 0, "player").create();
+   new Projectile(weapon, controls.playerPos + Math.min(currentShip.width / 2), game.BOARD_HEIGHT - controls.SLIDER_SIZE, 0, "player").create();
 
    setTimeout(() => weapon.fireCooldown = false, weapon.fireRate);
 }

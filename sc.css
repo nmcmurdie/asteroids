@@ -95,7 +95,7 @@ html {
 .map {
    position: absolute;
    width: 100%;
-   height: calc(100% - var(--slider-size) - 10px);
+   height: 100%;
 }
 .game-object {
    position: absolute;
