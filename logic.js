@@ -1,6 +1,6 @@
 'use strict'
 var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map;
-var stageFinished = false;
+var stageFinished = false, gameOver = false;
 
 // Determine if user is on a mobile device
 function isMobile() {
@@ -86,14 +86,6 @@ function processMovement(evt) {
       else if (touchX < moveControlThreshold) controls.holdingLeft = true;
       else if (touchX >= moveControlThreshold) controls.holdingRight = true;
    }
-   // if (x >= moveControlThreshold) {
-   //    controls.holdingRight = true;
-   //    controls.holdingLeft = false;
-   // }
-   // else {
-   //    controls.holdingRight = false;
-   //    controls.holdingLeft = true;
-   // }
 }
 
 function handleKeypress(evt) {
@@ -276,6 +268,7 @@ function hurtPlayer(damage) {
    game.health = Math.max(game.health - computedDamage, 0);
    if (game.health === 0) {
       clearInterval(gameLoop);
+      gameOver = true;
       console.log("GAME_OVER");
    }
    updateHUD();
