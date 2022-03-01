@@ -50,6 +50,7 @@ function setupCanvas() {
 
    game.BOARD_WIDTH = canvas.width;
    game.BOARD_HEIGHT = canvas.height;
+   controls.playerPos = (canvas.width - currentShip.width) / 2;
 }
 
 // Get the game map, used by game objects

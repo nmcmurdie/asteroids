@@ -84,7 +84,6 @@ class GameObject {
    draw() {
       getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
       getCanvas().fillStyle = "red";
-      getCanvas().fillRect(this.x, this.y - 20, 20, 20);
    }
 
    moveObject() {
