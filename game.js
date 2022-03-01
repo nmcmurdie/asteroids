@@ -1,8 +1,22 @@
 'use strict'
+
+// Calculate the pixel ratio of the screen to ensure everything is scaled correctly
+const PIXEL_RATIO = (function () {
+   var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+            ctx.mozBackingStorePixelRatio ||
+            ctx.msBackingStorePixelRatio ||
+            ctx.oBackingStorePixelRatio ||
+            ctx.backingStorePixelRatio || 1;
+
+   return dpr / bsr;
+})();
+
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
-   TICK_SPEED: 4,
+   TICK_SPEED: 5,
    health: 10,
    money: 0,
    score: 0,
@@ -13,7 +27,7 @@ const game = {
    levelFinished: false
 };
 const controls = {
-   SLIDER_SIZE: 160,
+   SLIDER_SIZE: 80 * PIXEL_RATIO,
    holdingLeft: false,
    holdingRight: false,
    holdingFire: false,
@@ -21,16 +35,15 @@ const controls = {
    playerPos: 0
 };
 const currentShip = {
-   widthPadding: 12,
-   speed: 3,
-   width: 112,
-   height: 120,
+   speed: 1.5 * PIXEL_RATIO,
+   width: 56 * PIXEL_RATIO,
+   height: 60 * PIXEL_RATIO,
    icon: "rocket_basic",
    mainWeapon: {
       id: "laser_basic",
       fireRate: 400,
       fireCooldown: false,
-      projectileSpeed: 7,
+      projectileSpeed: 3.5,
       damage: 1,
       pierce: 1
    },
@@ -41,12 +54,16 @@ class GameObject {
    constructor(x, y, type, health) {
       this.x = x;
       this.y = y;
-      this.width = 0;
-      this.height = 0;
+      this.setSize(0, 0);
       this.health = health;
       this.type = type;
       this.dx = 0;
       this.id = Math.random().toString(16).slice(2);
+   }
+
+   setSize(width, height) {
+      this.width = width * PIXEL_RATIO;
+      this.height = height * PIXEL_RATIO;
    }
 
    getAsset() {
@@ -114,8 +131,7 @@ class BoosterItem extends GameObject {
 class GunBoost extends BoosterItem {
    constructor(x) {
       super(x, 0, "gunBoost", BoosterItem.BOOST_LONG);
-      this.width = 78;
-      this.height = 90;
+      this.setSize(39, 45);
    }
 
    use() {
@@ -131,17 +147,12 @@ class GunBoost extends BoosterItem {
 class Asteroid extends GameObject {
    constructor(size, x, reward) {
       let sizeMultiplier = Math.max(Math.pow(size - 1, 2), 1);
-      super(x, 0, "asteroid", sizeMultiplier);
+      super(x * PIXEL_RATIO, 0, "asteroid", sizeMultiplier);
       this.size = size;
       this.damage = sizeMultiplier;
       this.reward = reward == null ? sizeMultiplier : reward;
-      this.dy = Math.max(1 / Math.pow(2, size - 1), .12);
-      this.width = this.size * 56;
-      this.height = this.size * 88;
-   }
-
-   draw() {
-      super.draw();
+      this.dy = Math.max(1 / Math.pow(2, size - 1), .12) * PIXEL_RATIO;
+      this.setSize(this.size * 28, this.size * 44);
    }
 
    destroy(hitBoundary) {
@@ -161,9 +172,8 @@ class Projectile extends GameObject {
       this.weaponID = weapon.id;
       this.damage = weapon.damage;
       this.dx = dx;
-      this.dy = -1 * weapon.projectileSpeed;
-      this.width = 8;
-      this.height = 100;
+      this.dy = -1 * weapon.projectileSpeed * PIXEL_RATIO;
+      this.setSize(4, 50);
       this.y = y - this.height;
    }
 
@@ -174,9 +184,6 @@ class Projectile extends GameObject {
    draw() {
       switch (this.weaponID) {
          case "laser_basic":
-            // getCanvas().shadowColor = "green";
-            // getCanvas().shadowBlur = 10;
-            // getCanvas().shadowY = 0;
             getCanvas().fillStyle = "green";
             getCanvas().fillRect(this.x, this.y, this.width, this.height);
             break;
@@ -220,27 +227,27 @@ class EarthLevel extends Level {
       let stages = [
          {
             time: 8_000,
-            objects: [new Asteroid(2, 100), new Asteroid(2, 400), new Asteroid(2, 50), new Asteroid(2, 300), new Asteroid(4, 200)]
+            objects: [new Asteroid(2, 86), new Asteroid(2, 372), new Asteroid(2, 12), new Asteroid(2, 272), new Asteroid(4, 144)]
          },
          {
             time: 5_000,
-            objects: [new Asteroid(3, 100), new Asteroid(2, 200), new Asteroid(3, 300), new Asteroid(2, 400), new Asteroid(2, 400)]
+            objects: [new Asteroid(3, 58), new Asteroid(2, 172), new Asteroid(3, 258), new Asteroid(2, 372), new Asteroid(2, 372)]
          },
          {
             time: 5_000,
-            objects: [new GunBoost(280), new Asteroid(2, 140), new Asteroid(2, 260), new Asteroid(1, 320), new Asteroid(2, 60), new Asteroid(2, 120), new Asteroid(1, 300), new Asteroid(2, 160), new Asteroid(1, 400)]
+            objects: [new GunBoost(260), new Asteroid(2, 112), new Asteroid(2, 232), new Asteroid(1, 306), new Asteroid(2, 32), new Asteroid(2, 92), new Asteroid(1, 286), new Asteroid(2, 132), new Asteroid(1, 386)]
          },
          {
             time: 2_000,
-            objects: [new Asteroid(2, 0), new Asteroid(2, 380), new Asteroid(2, 70), new Asteroid(2, 20), new Asteroid(2, 420), new Asteroid(2, 200), new Asteroid(2, 120), new Asteroid(2, 330), new Asteroid(2, 30)]
+            objects: [new Asteroid(2, -28), new Asteroid(2, 352), new Asteroid(2, 42), new Asteroid(2, -8), new Asteroid(2, 392), new Asteroid(2, 172), new Asteroid(2, 92), new Asteroid(2, 302), new Asteroid(2, 2)]
          },
          {
             time: 7_000,
-            objects: [new Asteroid(5, 200), new Asteroid(1, 40), new Asteroid(1, 100), new Asteroid(1, 300), new Asteroid(1, 80), new Asteroid(1, 260), new Asteroid(1, 340)]
+            objects: [new Asteroid(5, 130), new Asteroid(1, 26), new Asteroid(1, 86), new Asteroid(1, 286), new Asteroid(1, 66), new Asteroid(1, 246), new Asteroid(1, 326)]
          },
          {
             time: 20_000,
-            objects: [new Asteroid(8, 200, 50), new Asteroid(1, 350), new Asteroid(1, 300), new Asteroid(1, 400), new Asteroid(1, 50), new Asteroid(1, 400)]
+            objects: [new Asteroid(8, 88, 50), new Asteroid(1, 336), new Asteroid(1, 286), new Asteroid(1, 386), new Asteroid(1, 36), new Asteroid(1, 386)]
          }
       ];
       super(stages, "earth.png", ["#00004B", "#1A237E", "#283593"]);
