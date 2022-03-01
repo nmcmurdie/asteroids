@@ -115,7 +115,7 @@ class BoosterItem extends GameObject {
    constructor(x, y, type, duration) {
       super(x, y, type, 1);
       this.duration = duration;
-      this.dy = 1;
+      this.dy = 0.5 * PIXEL_RATIO;
    }
 
    destroy(hitBoundary) {
