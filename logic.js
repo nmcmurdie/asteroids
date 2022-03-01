@@ -68,11 +68,7 @@ function detectMobile() {
 
    mobileControls.addEventListener("touchstart", processMovement, { passive: true });
    mobileControls.addEventListener("touchmove", processMovement, { passive: true });
-   mobileControls.addEventListener("touchend", () => {
-      controls.holdingLeft = false;
-      controls.holdingRight = false;
-      controls.holdingFire = false;
-   }, { passive: true });
+   mobileControls.addEventListener("touchend", processMovement, { passive: true });
 }
 
 // Move shooter left or right depending on touch position on controls
