@@ -1,5 +1,5 @@
 'use strict'
-var gameLoop, currentStage, moveControlX, moveControlThreshold, canvas, map;
+var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map;
 var stageFinished = false;
 
 // Determine if user is on a mobile device
@@ -52,43 +52,51 @@ function setupCanvas() {
    game.BOARD_HEIGHT = canvas.height;
 }
 
+// Get the game map, used by game objects
 function getCanvas() {
    return map;
 }
 
 // Enable mobile controls
 function detectMobile() {
-   let mobileControls = document.getElementById("mobile_controls"),
-      moveControl = document.getElementById("control_movement"),
-      fireControl = document.getElementById("control_fire");
+   let mobileControls = document.getElementById("mobile_controls");
 
    mobileControls.classList.remove("hidden");
 
-   let controlBox = moveControl.getBoundingClientRect();
-      moveControlX = controlBox.left;
-      moveControlThreshold = controlBox.width / 2;
+   hitControlThreshold = mobileControls.clientWidth / 3;
+   moveControlThreshold = mobileControls.clientWidth / 1.5;
 
-   moveControl.addEventListener("touchstart", processMovement, { passive: true });
-   moveControl.addEventListener("touchmove", processMovement, { passive: true });
-   moveControl.addEventListener("touchend", () => {
+   mobileControls.addEventListener("touchstart", processMovement, { passive: true });
+   mobileControls.addEventListener("touchmove", processMovement, { passive: true });
+   mobileControls.addEventListener("touchend", () => {
       controls.holdingLeft = false;
       controls.holdingRight = false;
+      controls.holdingFire = false;
    }, { passive: true });
-   fireControl.addEventListener("touchstart", () => controls.holdingFire = true, { passive: true });
-   fireControl.addEventListener("touchend", () => controls.holdingFire = false, { passive: true });
 }
 
 // Move shooter left or right depending on touch position on controls
 function processMovement(evt) {
-   let x = evt.touches[0].clientX - moveControlX;
-   if (x >= moveControlThreshold) {
-      controls.holdingRight = true;
-      controls.holdingLeft = false;
+   let touches = evt.touches;
+   controls.holdingFire = false;
+   controls.holdingLeft = false;
+   controls.holdingRight = false;
+
+   for (let i = 0; i < touches.length; i++) {
+      let touchX = touches[i].clientX;
+      
+      if (touchX < hitControlThreshold) controls.holdingFire = true;
+      else if (touchX < moveControlThreshold) controls.holdingLeft = true;
+      else if (touchX >= moveControlThreshold) controls.holdingRight = true;
    }
-   else {
-      controls.holdingRight = false;
-      controls.holdingLeft = true;
-   }
+   // if (x >= moveControlThreshold) {
+   //    controls.holdingRight = true;
+   //    controls.holdingLeft = false;
+   // }
+   // else {
+   //    controls.holdingRight = false;
+   //    controls.holdingLeft = true;
+   // }
 }
 
 function handleKeypress(evt) {

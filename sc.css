@@ -111,18 +111,8 @@ html {
    height: 100%;
    z-index: 1;
    opacity: .4;
+   background-color: red;
 }
 .mobile-controls.hidden {
    display: none;
-}
-.mobile-control {
-   position: absolute;
-   width: 33.3%;
-   height: 100%;
-   background-color: red;
-}
-.control-movement {
-   left: 33.3%;
-   width: 66.7%;
-   background-color: blue;
 }
