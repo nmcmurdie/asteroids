@@ -126,7 +126,9 @@ html {
 .slider-button {
    position: absolute;
    pointer-events: none;
-   background-color: rgba(255,255,255,.1);
+   /* background-color: rgba(255,255,255,.1); */
+   background-color: #fff;
+   opacity: .1;
    border-radius: 22px;
 }
 .button-fire {
