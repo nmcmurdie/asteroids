@@ -22,6 +22,7 @@ const game = {
    shield: 0,
    objects: [],
    levels: [],
+   timers: [],
    currentLevel: 0,
    levelFinished: false
 };
@@ -48,6 +49,36 @@ const currentShip = {
    },
    secondaryWeapon: null
 };
+
+class Timer {
+   constructor(callback, delay) {
+      this.callback = callback;
+      this.delay = delay;
+      this.running = false;
+      this.remaining = delay;
+
+      this.start();
+   }
+
+   start() {
+      this.running = true;
+      this.started = new Date();
+      this.id = setTimeout(() => {
+         this.end();
+         this.callback();
+      }, this.remaining);
+   }
+
+   pause() {
+      this.running = false;
+      clearTimeout(this.id);
+      this.remaining -= new Date() - this.started;
+   }
+
+   end() {
+      game.timers.remove(this);
+   }
+}
 
 class GameObject {
    constructor(x, y, type, health) {
@@ -120,7 +151,7 @@ class BoosterItem extends GameObject {
       super.destroy(hitBoundary);
       if (!hitBoundary) {
          this.use();
-         setTimeout(this.stop, this.duration);
+         game.timers.push(new Timer(this.stop, this.duration));
       }
    }
 }
