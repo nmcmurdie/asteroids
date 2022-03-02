@@ -1,6 +1,6 @@
 'use strict'
 // Calculate the pixel ratio of the screen to ensure everything is scaled correctly
-const PIXEL_RATIO = (function () {
+const PIXEL_RATIO = (() => {
    var ctx = document.createElement("canvas").getContext("2d"),
       dpr = window.devicePixelRatio || 1,
       bsr = ctx.webkitBackingStorePixelRatio ||
@@ -53,15 +53,12 @@ const currentShip = {
 class Timer {
    constructor(callback, delay) {
       this.callback = callback;
-      this.delay = delay;
-      this.running = false;
       this.remaining = delay;
-
+      game.timers.push(this);
       this.start();
    }
 
    start() {
-      this.running = true;
       this.started = new Date();
       this.id = setTimeout(() => {
          this.end();
@@ -70,7 +67,6 @@ class Timer {
    }
 
    pause() {
-      this.running = false;
       clearTimeout(this.id);
       this.remaining -= new Date() - this.started;
    }
@@ -151,7 +147,7 @@ class BoosterItem extends GameObject {
       super.destroy(hitBoundary);
       if (!hitBoundary) {
          this.use();
-         game.timers.push(new Timer(this.stop, this.duration));
+         new Timer(this.stop, this.duration);
       }
    }
 }

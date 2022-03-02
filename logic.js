@@ -30,7 +30,7 @@ window.addEventListener("load", () => {
    updateHUD();
    updateShip();
    setupCanvas();
-   gameLoop = setInterval(tick, game.TICK_SPEED);
+   startGame();
    startLevel(game.levels[game.currentLevel]);
 });
 
@@ -137,6 +137,13 @@ function startGame() {
    isGamePaused = false;
 }
 
+// End the game once user has died
+function endGame() {
+   pauseGame();
+   gameOver = true;
+   alert("GAME OVER!");
+}
+
 function tick() {
    map.clearRect(0, 0, canvas.width, canvas.height - controls.SLIDER_SIZE);
    if (controls.holdingLeft || controls.holdingRight) updateSliderPos(controls.holdingLeft);
@@ -187,7 +194,7 @@ function createStageObject(index, timeout) {
    obj.create();
 
    if (index + 1 < currentStage.objects.length) {
-      game.timers.push(new Timer(() => createStageObject(index + 1, timeout), timeout));
+      new Timer(() => createStageObject(index + 1, timeout), timeout);
    }
 }
 
@@ -219,9 +226,9 @@ function finishLevel() {
 
 function colliding(obj1, obj2) {
    return obj1.y >= obj2.y - obj2.height
-            && obj1.y <= obj2.y
-            && obj1.x <= obj2.x + obj2.width
-            && obj1.x + obj1.width >= obj2.x;
+          && obj1.y <= obj2.y
+          && obj1.x <= obj2.x + obj2.width
+          && obj1.x + obj1.width >= obj2.x;
 }
 
 function updateHUD() {
@@ -269,9 +276,9 @@ function addGameObject(object) {
 function fireWeapon(weapon) {
    if (!weapon || weapon.fireCooldown) return;
    weapon.fireCooldown = true;
-   new Projectile(weapon, controls.playerPos + Math.min(currentShip.width / 2), game.BOARD_HEIGHT - controls.SLIDER_SIZE, 0, "player").create();
 
-   game.timers.push(new Timer(() => weapon.fireCooldown = false, weapon.fireRate));
+   new Projectile(weapon, controls.playerPos + Math.min(currentShip.width / 2), game.BOARD_HEIGHT - controls.SLIDER_SIZE, 0, "player").create();
+   new Timer(() => weapon.fireCooldown = false, weapon.fireRate);
 }
 
 function animateDamage(shieldDamage) {
@@ -292,10 +299,6 @@ function hurtPlayer(damage) {
    animateDamage(computedDamage === 0);
 
    game.health = Math.max(game.health - computedDamage, 0);
-   if (game.health === 0) {
-      clearInterval(gameLoop);
-      gameOver = true;
-      console.log("GAME_OVER");
-   }
+   if (game.health === 0) endGame();
    updateHUD();
 }
