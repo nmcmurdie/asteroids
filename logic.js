@@ -1,5 +1,5 @@
 'use strict'
-var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map;
+var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map, mapWidth, mapHeight;
 var stageFinished = false, isGameOver = false, isGamePaused = false;
 
 // Determine if user is on a mobile device
@@ -32,6 +32,7 @@ window.addEventListener("load", () => {
    setupCanvas();
    startGame();
    startLevel(game.levels[game.currentLevel]);
+   window.requestAnimationFrame(drawFrame);
 });
 
 window.addEventListener("keydown", handleKeypress);
@@ -57,6 +58,8 @@ function setupCanvas() {
    canvas.height = PIXEL_RATIO * container.clientHeight;
    canvas.style.width = container.clientWidth + "px";
    canvas.style.height = container.clientHeight + "px";
+   mapWidth = canvas.width;
+   mapHeight = canvas.height;
    
    map = canvas.getContext("2d");
    map.imageSmoothingEnabled = false;
@@ -126,18 +129,16 @@ function handleKeypress(evt) {
 
 // Pause the game loop and associated timers
 function pauseGame() {
-   // clearInterval(gameLoop);
+   clearInterval(gameLoop);
    game.timers.forEach(timer => timer.pause());
    isGamePaused = true;
-   window.cancelAnimationFrame(gameLoop);
 }
 
 // Resume playback of the game and associated timers
 function startGame() {
-   // gameLoop = setInterval(tick, game.TICK_SPEED);
+   gameLoop = setInterval(tick, game.TICK_SPEED);
    game.timers.forEach(timer => timer.start());
    isGamePaused = false;
-   gameLoop = window.requestAnimationFrame(tick);
 }
 
 // End the game once user has died
@@ -147,23 +148,30 @@ function endGame() {
    alert("GAME OVER!");
 }
 
+// Draw each frame, synchronized to the display graphics
+function drawFrame() {
+   map.clearRect(0, 0, mapWidth, mapHeight);
+   game.objects.forEach(obj => obj.draw());
+
+   map.shadowColor = "rgba(0, 0, 0, .3)";
+   map.shadowBlur = 10;
+   map.shadowOffsetY = 5;
+   map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
+   map.shadowColor = "transparent";
+
+   !isGamePaused && window.requestAnimationFrame(drawFrame);
+}
+
+// Perform game logic at a faster rate than drawing
 function tick() {
-   map.clearRect(0, 0, canvas.width, canvas.height - controls.SLIDER_SIZE);
    if (controls.holdingLeft || controls.holdingRight) updateSliderPos(controls.holdingLeft);
    if (controls.holdingFire) fireWeapon(currentShip.mainWeapon);
    if (controls.holdingSecondaryFire) fireWeapon(currentShip.secondaryWeapon);
-   let projectiles = [];
 
-   for (let i = 0; i < game.objects.length; ++i) {
-      let obj = game.objects[i];
-      if (obj.type === "projectile") {
-         projectiles.push(obj);
-      }
-      obj.moveObject();
-   }
+   game.objects.forEach(obj => obj.moveObject());
 
-   for (let i = 0; i < projectiles.length; ++i) {
-      let proj = projectiles[i];
+   for (let i = 0; i < game.projectiles.length; ++i) {
+      let proj = game.projectiles[i];
       if (proj.source !== "player") continue;
 
       for (let j = 0; j < game.objects.length; ++j) {
@@ -175,7 +183,6 @@ function tick() {
          }
       }
    }
-   !isGamePaused && window.requestAnimationFrame(tick);
 }
 
 function startLevel(level) {
@@ -266,16 +273,12 @@ function updateShip() {
 
 // Move the player's ship left or right
 function updateSliderPos(moveLeft) {
-   let shadowSize = 40;
-   map.clearRect(controls.playerPos - shadowSize / 2, game.BOARD_HEIGHT - controls.SLIDER_SIZE - shadowSize / 2, currentShip.width + shadowSize, currentShip.height + shadowSize);
-   controls.playerPos = moveLeft ? Math.max(controls.playerPos - currentShip.speed, 0)
-                                 : Math.min(controls.playerPos + currentShip.speed, game.BOARD_WIDTH - currentShip.width);
-
-   map.shadowColor = "rgba(0, 0, 0, .3)";
-   map.shadowBlur = 10;
-   map.shadowOffsetY = 5;
-   map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
-   map.shadowColor = "transparent";
+   if (moveLeft) {
+      controls.playerPos = Math.max(controls.playerPos - currentShip.speed, 0);
+   }
+   else {
+      controls.playerPos = Math.min(controls.playerPos + currentShip.speed, game.BOARD_WIDTH - currentShip.width);
+   }
 }
 
 function addGameObject(object) {

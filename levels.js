@@ -64,7 +64,7 @@ class EarthLevel extends Level {
           },
           {
              time: 1_000,
-             objects: [new UFO(100, 0.45, 300, 30)]
+             objects: [new UFO(100, 0.5, 300, 30)]
           },
           {
              time: 6_000,
@@ -79,4 +79,4 @@ class EarthLevel extends Level {
     }
  }
  
- game.levels = [  new MoonLevel() ];
+ game.levels = [ new EarthLevel(), new MoonLevel() ];

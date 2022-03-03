@@ -12,7 +12,7 @@ const PIXEL_RATIO = (() => {
    return dpr / bsr;
 })();
 
-const SPEED_MULTIPLIER = 3 * PIXEL_RATIO;
+const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
 
 class Weapon {
    constructor(id, fireRate, projectileSpeed, damage, pierce) {
@@ -28,12 +28,13 @@ class Weapon {
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
-   TICK_SPEED: 5,
+   TICK_SPEED: 8,
    health: 10,
    money: 0,
    score: 0,
    shield: 0,
    objects: [],
+   projectiles: [],
    levels: [],
    timers: [],
    currentLevel: 0,
@@ -209,6 +210,7 @@ class Projectile extends GameObject {
 
    create() {
       addGameObject(this);
+      game.projectiles.push(this);
    }
 
    moveObject() {
@@ -223,7 +225,6 @@ class Projectile extends GameObject {
                hurtPlayer(this.damage);
             }
       }
-      else this.draw();
    }
 
    draw() {
@@ -239,6 +240,11 @@ class Projectile extends GameObject {
          default:
             console.error("Unknown projectile type");
       }
+   }
+
+   destroy() {
+      super.destroy();
+      game.projectiles.remove(this);
    }
 }
 
@@ -279,11 +285,12 @@ class UFO extends ShooterObject {
 
    moveObject() {
       this.y += this.dy;
-      this.draw();
+      // this.draw();
+
+      if (Math.abs(controls.playerPos - this.x) < UFO.SHOOT_THRESHOLD) this.fire();
+      else if (controls.playerPos > this.x) this.x += this.dx;
+      else this.x -= this.dx;
 
       if (this.y > UFO.HOVER_HEIGHT) this.dy = 0;
-      if (controls.playerPos > this.x) this.x += this.dx;
-      else this.x -= this.dx;
-      if (Math.abs(controls.playerPos - this.x) < UFO.SHOOT_THRESHOLD) this.fire();
    }
 }
