@@ -119,17 +119,17 @@ class GameObject {
       this.x += this.dx;
       this.y += this.dy;
       if (this.y > game.BOARD_HEIGHT - controls.SLIDER_SIZE || this.y < 0) {
-         this.destroy(true);
+         this.destroy("boundary");
       }
       else this.draw();
    }
 
-   hurt(damage) {
+   hurt(damage, source) {
       this.health -= damage;
-      if (this.health <= 0) this.destroy(false);
+      if (this.health <= 0) this.destroy(source);
    }
 
-   destroy(hitBoundary) {
+   destroy(source) {
       game.objects.remove(this);
 
       if (this.type !== "projectile" && isLastStageObject() && !isGameOver) finishStage()
@@ -147,9 +147,9 @@ class BoosterItem extends GameObject {
       this.dy = 0.5 * PIXEL_RATIO;
    }
 
-   destroy(hitBoundary) {
-      super.destroy(hitBoundary);
-      if (!hitBoundary) {
+   destroy(source) {
+      super.destroy(source);
+      if (source != "boundary") {
          this.use();
          new Timer(this.stop, this.duration);
       }
@@ -183,13 +183,13 @@ class Asteroid extends GameObject {
       this.setSize(this.size * 28, this.size * 44);
    }
 
-   destroy(hitBoundary) {
-      if (hitBoundary) hurtPlayer(this.damage);
+   destroy(source) {
+      if (source == "boundary") hurtPlayer(this.damage);
       else {
-         game.money += this.reward;
+         updateHUDElem("money", this.reward);
          updateHUD();
       }
-      super.destroy(hitBoundary);
+      super.destroy(source);
    }
 }
 
@@ -212,9 +212,9 @@ class Projectile extends GameObject {
    moveObject() {
       this.x += this.dx;
       this.y += this.dy;
-      if (this.y < 0) this.destroy();
+      if (this.y < 0) this.destroy("boundary");
       else if (this.y + this.height > game.BOARD_HEIGHT - controls.SLIDER_SIZE) {
-         this.destroy();
+         this.destroy("boundary");
 
          if (this.source !== "player" && this.x <= controls.playerPos + currentShip.width
             && this.x + this.width >= controls.playerPos) {
@@ -258,20 +258,30 @@ class ShooterObject extends GameObject {
 
 class UFO extends ShooterObject {
    static HOVER_HEIGHT = 300;
-   static SPEED = 1.5;
    static SHOOT_THRESHOLD = 10;
 
-   constructor(x) {
-      let weapon = new Weapon("laser_basic", 300, 3.5, 1, 1);
+   constructor(x, speed, fireRate, reward) {
+      let weapon = new Weapon("laser_basic", fireRate, 3.5, 1, 1);
       super(x, 0, 50, 50, "ufo", 6, weapon);
+      this.reward = reward;
       this.dy = 0.5;
+      this.dx = speed;
+   }
+
+   destroy(source) {
+      super.destroy(source);
+      if (source === "player") {
+         updateHUDElem("money", this.reward);
+      }
    }
 
    moveObject() {
-      super.moveObject();
+      this.y += this.dy;
+      this.draw();
+
       if (this.y > UFO.HOVER_HEIGHT) this.dy = 0;
-      if (controls.playerPos > this.x) this.dx = UFO.SPEED;
-      else this.dx = -UFO.SPEED;
+      if (controls.playerPos > this.x) this.x += this.dx;
+      else this.x -= this.dx;
       if (Math.abs(controls.playerPos - this.x) < UFO.SHOOT_THRESHOLD) this.fire();
    }
 }

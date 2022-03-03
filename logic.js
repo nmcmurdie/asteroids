@@ -161,13 +161,14 @@ function tick() {
 
    for (let i = 0; i < projectiles.length; ++i) {
       let proj = projectiles[i];
+      if (proj.source !== "player") continue;
 
       for (let j = 0; j < game.objects.length; ++j) {
          let obj = game.objects[j];
 
          if (obj !== proj && obj.type !== "projectile" && colliding(proj, obj)) {
-            proj.hurt(obj.damage == null ? 1 : obj.damage);
-            obj.hurt(proj.damage);
+            proj.hurt(obj.damage == null ? 1 : obj.damage, obj.type);
+            obj.hurt(proj.damage, proj.source);
          }
       }
    }
@@ -237,6 +238,16 @@ function updateHUD() {
    shieldHUD.textContent = game.shield;
 }
 
+// Increment HUD element by value unless setValue, then simply set HUD element to value
+function updateHUDElem(elem, value, setValue) {
+   let hudElem = document.getElementById(`hud_${elem}`);
+   game[elem] = setValue ? value : game[elem] + value;
+   updateHUD();
+
+   hudElem.classList.add("hud-animate");
+   setTimeout(() => hudElem.classList.remove("hud-animate"), 400);
+}
+
 function addShield(shield) {
    game.shield += shield;
    updateHUD();
@@ -289,11 +300,12 @@ function hurtPlayer(damage) {
    let computedDamage = damage;
    if (game.shield >= 0) {
       computedDamage = Math.max(damage - game.shield, 0);
-      game.shield = Math.max(game.shield - damage, 0);
+      updateHUDElem("shield", Math.max(game.shield - damage, 0), true);
    }
-   animateDamage(computedDamage === 0);
 
-   game.health = Math.max(game.health - computedDamage, 0);
+   animateDamage(computedDamage === 0);
+   if (computedDamage) updateHUDElem("health", Math.max(game.health - computedDamage, 0), true);
+
    if (game.health === 0) endGame();
    updateHUD();
 }
