@@ -306,7 +306,7 @@ function hurtPlayer(damage) {
 
    animateDamage(computedDamage === 0);
    if (computedDamage) {
-      navigator.vibrate(40);
+      if (navigator.vibrate) navigator.vibrate(40);
       updateHUDElem("health", Math.max(game.health - computedDamage, 0), true);
    }
 
