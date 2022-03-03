@@ -159,7 +159,7 @@ function drawFrame() {
    map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
    map.shadowColor = "transparent";
 
-   !isGamePaused && window.requestAnimationFrame(drawFrame);
+   window.requestAnimationFrame(drawFrame);
 }
 
 // Perform game logic at a faster rate than drawing
