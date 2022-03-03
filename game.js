@@ -12,6 +12,17 @@ const PIXEL_RATIO = (() => {
    return dpr / bsr;
 })();
 
+class Weapon {
+   constructor(id, fireRate, projectileSpeed, damage, pierce) {
+      this.id = id;
+      this.fireRate = fireRate;
+      this.projectileSpeed = projectileSpeed;
+      this.damage = damage;
+      this.pierce = pierce;
+      this.fireCooldown = false;
+   }
+}
+
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
@@ -39,14 +50,7 @@ const currentShip = {
    width: 56 * PIXEL_RATIO,
    height: 60 * PIXEL_RATIO,
    icon: "rocket_basic",
-   mainWeapon: {
-      id: "laser_basic",
-      fireRate: 400,
-      fireCooldown: false,
-      projectileSpeed: 3.5,
-      damage: 1,
-      pierce: 1
-   },
+   mainWeapon: new Weapon("laser_basic", 400, -3.5, 1, 1),
    secondaryWeapon: null
 };
 
@@ -128,7 +132,7 @@ class GameObject {
    destroy(hitBoundary) {
       game.objects.remove(this);
 
-      if (this.type !== "projectile" && isLastStageObject() && !gameOver) finishStage()
+      if (this.type !== "projectile" && isLastStageObject() && !isGameOver) finishStage()
    }
 }
 
@@ -169,13 +173,13 @@ class GunBoost extends BoosterItem {
 }
 
 class Asteroid extends GameObject {
-   constructor(size, x, reward) {
+   constructor(size, x, reward, dy) {
       let sizeMultiplier = Math.max(Math.pow(size - 1, 2), 1);
       super(x * PIXEL_RATIO, 0, "asteroid", sizeMultiplier);
       this.size = size;
       this.damage = sizeMultiplier;
       this.reward = reward == null ? sizeMultiplier : reward;
-      this.dy = Math.max(1 / Math.pow(2, size - 1), .12) * PIXEL_RATIO;
+      this.dy = dy ?? Math.max(1 / Math.pow(2, size - 1), .12) * PIXEL_RATIO;
       this.setSize(this.size * 28, this.size * 44);
    }
 
@@ -196,13 +200,28 @@ class Projectile extends GameObject {
       this.weaponID = weapon.id;
       this.damage = weapon.damage;
       this.dx = dx;
-      this.dy = -1 * weapon.projectileSpeed * PIXEL_RATIO;
+      this.dy = weapon.projectileSpeed * PIXEL_RATIO;
       this.setSize(4, 50);
       this.y = y - this.height;
    }
 
    create() {
       addGameObject(this);
+   }
+
+   moveObject() {
+      this.x += this.dx;
+      this.y += this.dy;
+      if (this.y < 0) this.destroy();
+      else if (this.y + this.height > game.BOARD_HEIGHT - controls.SLIDER_SIZE) {
+         this.destroy();
+
+         if (this.source !== "player" && this.x <= controls.playerPos + currentShip.width
+            && this.x + this.width >= controls.playerPos) {
+               hurtPlayer(this.damage);
+            }
+      }
+      else this.draw();
    }
 
    draw() {
@@ -221,27 +240,38 @@ class Projectile extends GameObject {
    }
 }
 
-class Level {
-   constructor(stages, icon, background) {
-      this.stage = -1;
-      this.totalStages = stages.length;
-      this.stages = stages;
-      this.icon = icon;
-      this.background = background;
+class ShooterObject extends GameObject {
+   constructor(x, y, width, height, type, health, weapon) {
+      super(x, y, type, health);
+      this.setSize(width, height);
+      this.weapon = weapon;
    }
 
-   advanceStage() {
-      if (this.stage >= this.totalStages) return;
-      console.log("Moving from stage " + this.stage + " to stage " + (this.stage + 1));
-      return this.stages[++this.stage];
+   fire() {
+      if (!this.weapon.fireCooldown) {
+         new Projectile(this.weapon, this.x + this.width / 2, this.y + this.height, 0, this.type).create();
+         this.weapon.fireCooldown = true;
+         new Timer(() => this.weapon.fireCooldown = false, this.weapon.fireRate);
+      }
+   }
+}
+
+class UFO extends ShooterObject {
+   static HOVER_HEIGHT = 300;
+   static SPEED = 1.5;
+   static SHOOT_THRESHOLD = 10;
+
+   constructor(x) {
+      let weapon = new Weapon("laser_basic", 300, 3.5, 1, 1);
+      super(x, 0, 50, 50, "ufo", 6, weapon);
+      this.dy = 0.5;
    }
 
-   hasNextStage() {
-      return this.stage + 1 < this.totalStages;
-   }
-
-   start() {
-      document.getElementById("hud_level").style.backgroundImage = `url(res/${this.icon})`;
-      document.getElementById("pane_main").style.background = `linear-gradient(to bottom, ${this.background[0]} 0%, ${this.background[1]} 80%, ${this.background[2]})`;
+   moveObject() {
+      super.moveObject();
+      if (this.y > UFO.HOVER_HEIGHT) this.dy = 0;
+      if (controls.playerPos > this.x) this.dx = UFO.SPEED;
+      else this.dx = -UFO.SPEED;
+      if (Math.abs(controls.playerPos - this.x) < UFO.SHOOT_THRESHOLD) this.fire();
    }
 }

@@ -1,4 +1,28 @@
 'use strict'
+class Level {
+   constructor(stages, icon, background) {
+      this.stage = -1;
+      this.totalStages = stages.length;
+      this.stages = stages;
+      this.icon = icon;
+      this.background = background;
+   }
+
+   advanceStage() {
+      if (this.stage >= this.totalStages) return;
+      return this.stages[++this.stage];
+   }
+
+   hasNextStage() {
+      return this.stage + 1 < this.totalStages;
+   }
+
+   start() {
+      document.getElementById("hud_level").style.backgroundImage = `url(res/${this.icon})`;
+      document.getElementById("pane_main").style.background = `linear-gradient(to bottom, ${this.background[0]} 0%, ${this.background[1]} 80%, ${this.background[2]})`;
+   }
+}
+
 class EarthLevel extends Level {
     constructor() {
        let stages = [
@@ -35,8 +59,12 @@ class EarthLevel extends Level {
     constructor() {
        let stages = [
           {
-             time: 1_000,
-             objects: [new GunBoost(200)]
+             time: 4_000,
+             objects: [new Asteroid(3, 50), new Asteroid(3, 200, null, 2)]
+          },
+          {
+             time: 10_000,
+             objects: [new UFO(100)]
           }
        ];
        super(stages, "moon.png", ["#000000", "#12121f", "#1c1c2c"]);

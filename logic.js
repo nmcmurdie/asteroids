@@ -1,6 +1,6 @@
 'use strict'
 var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map;
-var stageFinished = false, gameOver = false, isGamePaused = false;
+var stageFinished = false, isGameOver = false, isGamePaused = false;
 
 // Determine if user is on a mobile device
 function isMobile() {
@@ -140,7 +140,7 @@ function startGame() {
 // End the game once user has died
 function endGame() {
    pauseGame();
-   gameOver = true;
+   isGameOver = true;
    alert("GAME OVER!");
 }
 
@@ -174,13 +174,11 @@ function tick() {
 }
 
 function startLevel(level) {
-   console.log("Starting level: ", level);
    level.start();
    beginStage(level.advanceStage());
 }
 
 function beginStage(stage) {
-   console.log("Starting stage: ", stage);
    currentStage = stage;
    stageFinished = false;
    let objectDuration = stage.time / stage.objects.length;
@@ -207,20 +205,17 @@ function isLastStageObject() {
 }
 
 function finishStage() {
-   console.log("Finishing stage");
    let currentLevel = game.levels[game.currentLevel];
    if (currentLevel.hasNextStage()) beginStage(currentLevel.advanceStage());
    else finishLevel(currentLevel);
 }
 
 function finishLevel() {
-   console.log("Finished level");
    if (game.currentLevel + 1 < game.levels.length) {
       startLevel(game.levels[++game.currentLevel]);
-      console.log("Starting new level");
    }
    else {
-      console.log("GAME_WON");
+      alert("GAME WON!");
    }
 }
 
