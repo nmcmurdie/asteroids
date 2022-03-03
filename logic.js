@@ -46,7 +46,7 @@ function changeOrientation() {
       alert("Please rotate screen to portrait mode");
       pauseGame();
    }
-   else if(isGamePaused) startGame();
+   else if(isGamePaused && !isGameOver) startGame();
 }
 
 // Setup the game canvas
