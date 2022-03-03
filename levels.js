@@ -68,7 +68,7 @@ class EarthLevel extends Level {
           },
           {
              time: 6_000,
-             objects: [new Asteroid(5, 250), new Asteroid(3, 50, null, 2), new Asteroid(3, 200, null, 2)]
+             objects: [new Asteroid(4, 250), new Asteroid(3, 50, null, 2), new Asteroid(3, 200, null, 2)]
           },
           {
              time: 12_000,
