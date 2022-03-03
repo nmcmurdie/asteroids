@@ -133,9 +133,10 @@ function pauseGame() {
 
 // Resume playback of the game and associated timers
 function startGame() {
-   gameLoop = setInterval(tick, game.TICK_SPEED);
+   // gameLoop = setInterval(tick, game.TICK_SPEED);
    game.timers.forEach(timer => timer.start());
    isGamePaused = false;
+   window.requestAnimationFrame(tick);
 }
 
 // End the game once user has died
@@ -173,6 +174,7 @@ function tick() {
          }
       }
    }
+   window.requestAnimationFrame(tick);
 }
 
 function startLevel(level) {
