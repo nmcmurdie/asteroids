@@ -37,6 +37,7 @@ window.addEventListener("load", () => {
 window.addEventListener("keydown", handleKeypress);
 window.addEventListener("keyup", handleKeypress);
 window.addEventListener("orientationchange", changeOrientation);
+window.addEventListener("gesturestart", e => e.preventDefault());
 
 // Handle mobile user changing orientation
 function changeOrientation() {
