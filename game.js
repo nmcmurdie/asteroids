@@ -12,6 +12,8 @@ const PIXEL_RATIO = (() => {
    return dpr / bsr;
 })();
 
+const SPEED_MULTIPLIER = 3 * PIXEL_RATIO;
+
 class Weapon {
    constructor(id, fireRate, projectileSpeed, damage, pierce) {
       this.id = id;
@@ -46,7 +48,7 @@ const controls = {
    playerPos: 0
 };
 const currentShip = {
-   speed: 1.5 * PIXEL_RATIO,
+   speed: 1.5 * SPEED_MULTIPLIER,
    width: 56 * PIXEL_RATIO,
    height: 60 * PIXEL_RATIO,
    icon: "rocket_basic",
@@ -144,7 +146,7 @@ class BoosterItem extends GameObject {
    constructor(x, y, type, duration) {
       super(x, y, type, 1);
       this.duration = duration;
-      this.dy = 0.5 * PIXEL_RATIO;
+      this.dy = 0.5 * SPEED_MULTIPLIER;
    }
 
    destroy(source) {
@@ -179,7 +181,7 @@ class Asteroid extends GameObject {
       this.size = size;
       this.damage = sizeMultiplier;
       this.reward = reward == null ? sizeMultiplier : reward;
-      this.dy = dy ?? Math.max(1 / Math.pow(2, size - 1), .12) * PIXEL_RATIO;
+      this.dy = SPEED_MULTIPLIER * (dy ?? Math.max(1 / Math.pow(2, size - 1), .12));
       this.setSize(this.size * 28, this.size * 44);
    }
 
@@ -200,7 +202,7 @@ class Projectile extends GameObject {
       this.weaponID = weapon.id;
       this.damage = weapon.damage;
       this.dx = dx;
-      this.dy = weapon.projectileSpeed * PIXEL_RATIO;
+      this.dy = SPEED_MULTIPLIER * weapon.projectileSpeed;
       this.setSize(4, 50);
       this.y = y - this.height;
    }
@@ -265,7 +267,7 @@ class UFO extends ShooterObject {
       super(x, 0, 50, 50, "ufo", 6, weapon);
       this.reward = reward;
       this.dy = 0.5;
-      this.dx = speed;
+      this.dx = speed * SPEED_MULTIPLIER;
    }
 
    destroy(source) {

@@ -126,9 +126,10 @@ function handleKeypress(evt) {
 
 // Pause the game loop and associated timers
 function pauseGame() {
-   clearInterval(gameLoop);
+   // clearInterval(gameLoop);
    game.timers.forEach(timer => timer.pause());
    isGamePaused = true;
+   window.cancelAnimationFrame(gameLoop);
 }
 
 // Resume playback of the game and associated timers
@@ -136,7 +137,7 @@ function startGame() {
    // gameLoop = setInterval(tick, game.TICK_SPEED);
    game.timers.forEach(timer => timer.start());
    isGamePaused = false;
-   window.requestAnimationFrame(tick);
+   gameLoop = window.requestAnimationFrame(tick);
 }
 
 // End the game once user has died
@@ -174,7 +175,7 @@ function tick() {
          }
       }
    }
-   window.requestAnimationFrame(tick);
+   !isGamePaused && window.requestAnimationFrame(tick);
 }
 
 function startLevel(level) {
