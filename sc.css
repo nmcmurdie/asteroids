@@ -11,6 +11,7 @@
    --text-secondary: #e5e5e5;
    --slider-size: 80px;
    user-select: none;
+   -webkit-user-select: none;
 }
 
 html {
