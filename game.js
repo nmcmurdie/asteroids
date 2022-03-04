@@ -11,6 +11,8 @@ const PIXEL_RATIO = (() => {
 
    return dpr / bsr;
 })();
+var AST_ASSET = new Image();
+AST_ASSET.src = 'res/asteroid.png';
 
 const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
 
@@ -115,8 +117,7 @@ class GameObject {
    }
 
    draw() {
-      getCanvas().fillRect(this.x, this.y - this.height, this.width, this.height);
-      // getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
+      getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
    }
 
    moveObject() {
@@ -185,6 +186,10 @@ class Asteroid extends GameObject {
       this.reward = reward == null ? sizeMultiplier : reward;
       this.dy = SPEED_MULTIPLIER * (dy ?? Math.max(1 / Math.pow(2, size - 1), .12));
       this.setSize(this.size * 28, this.size * 44);
+   }
+
+   getAsset() {
+      return AST_ASSET;
    }
 
    destroy(source) {
