@@ -153,12 +153,12 @@ function drawFrame() {
    map.clearRect(0, 0, mapWidth, mapHeight);
    game.objects.forEach(obj => obj.draw());
 
-   // map.shadowColor = "rgba(0, 0, 0, .3)";
-   // map.shadowBlur = 10;
-   // map.shadowOffsetY = 5;
-   // map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
-   // map.shadowColor = "transparent";
-   map.fillRect(controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
+   map.shadowColor = "rgba(0, 0, 0, .3)";
+   map.shadowBlur = 10;
+   map.shadowOffsetY = 5;
+   map.drawImage(currentShip.asset, controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
+   map.shadowColor = "transparent";
+   // map.fillRect(controls.playerPos, game.BOARD_HEIGHT - controls.SLIDER_SIZE, currentShip.width, currentShip.height);
 
    window.requestAnimationFrame(drawFrame);
 }
