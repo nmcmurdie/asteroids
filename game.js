@@ -186,10 +186,6 @@ class Asteroid extends GameObject {
       this.setSize(this.size * 28, this.size * 44);
    }
 
-   getAsset() {
-      return AST_ASSET;
-   }
-
    destroy(source) {
       if (source == "boundary") hurtPlayer(this.damage);
       else {
@@ -289,7 +285,6 @@ class UFO extends ShooterObject {
 
    moveObject() {
       this.y += this.dy;
-      // this.draw();
 
       if (Math.abs(controls.playerPos - this.x) < UFO.SHOOT_THRESHOLD) this.fire();
       else if (controls.playerPos > this.x) this.x += this.dx;
