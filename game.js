@@ -12,7 +12,7 @@ const PIXEL_RATIO = (() => {
    return dpr / bsr;
 })();
 
-const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
+const SPEED_MULTIPLIER = 3 * PIXEL_RATIO;
 
 class Weapon {
    constructor(id, fireRate, projectileSpeed, damage, pierce) {
@@ -28,7 +28,7 @@ class Weapon {
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
-   TICK_SPEED: 8,
+   TICK_SPEED: 16,
    health: 10,
    money: 0,
    score: 0,
@@ -102,15 +102,9 @@ class GameObject {
    getAsset() {
       if (this.asset) return this.asset;
       else {
-         let asset = new Image();
-         let preload = new OffscreenCanvas(this.width, this.height);
-         let ctx = preload.getContext('2d');
-         ctx.imageSmoothingEnabled = false;
-
-         asset.onload = () => ctx.drawImage(asset, 0, 0, this.width, this.height);
-         asset.src = `res/${this.type}.png`;
-         this.asset = preload;
-         return preload;
+         this.asset = new Image();
+         this.asset.src = `res/${this.type}.png`;
+         return this.asset;
       }
    }
 
