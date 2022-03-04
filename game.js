@@ -115,7 +115,8 @@ class GameObject {
    }
 
    draw() {
-      getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
+      getCanvas().fillRect(this.x, this.y - this.height, this.width, this.height);
+      // getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
    }
 
    moveObject() {
