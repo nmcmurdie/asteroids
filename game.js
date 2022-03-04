@@ -1,17 +1,16 @@
 'use strict'
 // Calculate the pixel ratio of the screen to ensure everything is scaled correctly
-// const PIXEL_RATIO = (() => {
-//    var ctx = document.createElement("canvas").getContext("2d"),
-//       dpr = window.devicePixelRatio || 1,
-//       bsr = ctx.webkitBackingStorePixelRatio ||
-//             ctx.mozBackingStorePixelRatio ||
-//             ctx.msBackingStorePixelRatio ||
-//             ctx.oBackingStorePixelRatio ||
-//             ctx.backingStorePixelRatio || 1;
+const PIXEL_RATIO = (() => {
+   var ctx = document.createElement("canvas").getContext("2d"),
+      dpr = window.devicePixelRatio || 1,
+      bsr = ctx.webkitBackingStorePixelRatio ||
+            ctx.mozBackingStorePixelRatio ||
+            ctx.msBackingStorePixelRatio ||
+            ctx.oBackingStorePixelRatio ||
+            ctx.backingStorePixelRatio || 1;
 
-//    return dpr / bsr;
-// })();
-const PIXEL_RATIO = 1;
+   return dpr / bsr;
+})();
 
 const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
 
@@ -103,10 +102,15 @@ class GameObject {
    getAsset() {
       if (this.asset) return this.asset;
       else {
-         let assetPath = `res/${this.type}.png`;
-         this.asset = new Image();
-         this.asset.src = assetPath;
-         return this.asset;
+         let asset = new Image();
+         let preload = new OffscreenCanvas(this.width, this.height);
+         let ctx = preload.getContext('2d');
+         ctx.imageSmoothingEnabled = false;
+
+         asset.onload = () => ctx.drawImage(asset, 0, 0, this.width, this.height);
+         asset.src = `res/${this.type}.png`;
+         this.asset = preload;
+         return preload;
       }
    }
 

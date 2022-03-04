@@ -25,7 +25,6 @@ Array.prototype.remove = function() {
 // Setup game
 window.addEventListener("load", () => {
    controls.playerPos = game.BOARD_WIDTH / 2;
-   alert("new 2");
 
    if (isMobile()) detectMobile();
    updateHUD();
