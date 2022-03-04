@@ -1,16 +1,17 @@
 'use strict'
 // Calculate the pixel ratio of the screen to ensure everything is scaled correctly
-const PIXEL_RATIO = (() => {
-   var ctx = document.createElement("canvas").getContext("2d"),
-      dpr = window.devicePixelRatio || 1,
-      bsr = ctx.webkitBackingStorePixelRatio ||
-            ctx.mozBackingStorePixelRatio ||
-            ctx.msBackingStorePixelRatio ||
-            ctx.oBackingStorePixelRatio ||
-            ctx.backingStorePixelRatio || 1;
+// const PIXEL_RATIO = (() => {
+//    var ctx = document.createElement("canvas").getContext("2d"),
+//       dpr = window.devicePixelRatio || 1,
+//       bsr = ctx.webkitBackingStorePixelRatio ||
+//             ctx.mozBackingStorePixelRatio ||
+//             ctx.msBackingStorePixelRatio ||
+//             ctx.oBackingStorePixelRatio ||
+//             ctx.backingStorePixelRatio || 1;
 
-   return dpr / bsr;
-})();
+//    return dpr / bsr;
+// })();
+const PIXEL_RATIO = 1;
 
 const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
 
@@ -115,7 +116,7 @@ class GameObject {
    }
 
    draw() {
-      getCanvas().drawImage(this.getAsset(), Math.round(this.x), Math.round(this.y - this.height), this.width, this.height);
+      getCanvas().drawImage(this.getAsset(), this.x, this.y - this.height, this.width, this.height);
    }
 
    moveObject() {
