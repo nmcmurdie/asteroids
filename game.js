@@ -12,7 +12,7 @@ const PIXEL_RATIO = (() => {
    return dpr / bsr;
 })();
 
-const SPEED_MULTIPLIER = 3 * PIXEL_RATIO;
+const SPEED_MULTIPLIER = 1.5 * PIXEL_RATIO;
 
 class Weapon {
    constructor(id, fireRate, projectileSpeed, damage, pierce) {
@@ -28,7 +28,7 @@ class Weapon {
 const game = {
    BOARD_WIDTH: 0,
    BOARD_HEIGHT: 0,
-   TICK_SPEED: 16,
+   TICK_SPEED: 8,
    health: 10,
    money: 0,
    score: 0,
