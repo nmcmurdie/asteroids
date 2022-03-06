@@ -289,13 +289,14 @@ class Word extends GameObject {
    static LETTER_FONT_SIZE = 60;
 
    constructor(word, maxY) {
-      super(0, 0, Word.LETTER_FONT_SIZE * (word.length - 1) * PIXEL_RATIO / 5, Word.LETTER_FONT_SIZE / PIXEL_RATIO, "word", 1);
+      super(0, 0, 0, Word.LETTER_FONT_SIZE, "word", 1);
       this.dy = 0.5 * SPEED_MULTIPLIER;
       this.word = word;
       this.maxY = maxY * PIXEL_RATIO;
    }
 
    draw() {
+      getCanvas().textAlign = "center";
       getCanvas().font = `${Word.LETTER_FONT_SIZE * PIXEL_RATIO}px pixel`;
       getCanvas().fillStyle = "#fff";
       getCanvas().fillText(this.word, this.textX, this.y);
@@ -306,7 +307,7 @@ class Word extends GameObject {
    }
 
    create() {
-      this.textX = (game.BOARD_WIDTH - this.width) / 2;
+      this.textX = game.BOARD_WIDTH / 2;
       this.width = game.BOARD_WIDTH;
       addGameObject(this);
    }
