@@ -84,19 +84,15 @@ class Timer {
 }
 
 class GameObject {
-   constructor(x, y, type, health) {
+   constructor(x, y, width, height, type, health) {
       this.x = x;
       this.y = y;
-      this.setSize(0, 0);
+      this.width = width * PIXEL_RATIO;
+      this.height = height * PIXEL_RATIO;
       this.health = health;
       this.type = type;
       this.dx = 0;
       this.id = Math.random().toString(16).slice(2);
-   }
-
-   setSize(width, height) {
-      this.width = width * PIXEL_RATIO;
-      this.height = height * PIXEL_RATIO;
    }
 
    getAsset() {
@@ -143,8 +139,8 @@ class BoosterItem extends GameObject {
    static BOOST_MEDIUM = 1000;
    static BOOST_LONG = 3000;
 
-   constructor(x, y, type, duration) {
-      super(x, y, type, 1);
+   constructor(x, y, width, height, type, duration) {
+      super(x, y, width, height, type, 1);
       this.duration = duration;
       this.dy = 0.5 * SPEED_MULTIPLIER;
    }
@@ -160,8 +156,7 @@ class BoosterItem extends GameObject {
 
 class GunBoost extends BoosterItem {
    constructor(x) {
-      super(x, 0, "gunBoost", BoosterItem.BOOST_LONG);
-      this.setSize(39, 45);
+      super(x, 0, 39, 45, "gunBoost", BoosterItem.BOOST_LONG);
    }
 
    use() {
@@ -177,12 +172,11 @@ class GunBoost extends BoosterItem {
 class Asteroid extends GameObject {
    constructor(size, x, reward, dy) {
       let sizeMultiplier = Math.max(Math.pow(size - 1, 2), 1);
-      super(x * PIXEL_RATIO, 0, "asteroid", sizeMultiplier);
+      super(x * PIXEL_RATIO, 0, size * 28, size * 44, "asteroid", sizeMultiplier);
       this.size = size;
       this.damage = sizeMultiplier;
       this.reward = reward == null ? sizeMultiplier : reward;
       this.dy = SPEED_MULTIPLIER * (dy ?? Math.max(1 / Math.pow(2, size - 1), .12));
-      this.setSize(this.size * 28, this.size * 44);
    }
 
    destroy(source) {
@@ -197,13 +191,12 @@ class Asteroid extends GameObject {
 
 class Projectile extends GameObject {
    constructor(weapon, x, y, dx, source) {
-      super(x, y, "projectile", weapon.pierce);
+      super(x, y, 4, 50, "projectile", weapon.pierce);
       this.source = source;
       this.weaponID = weapon.id;
       this.damage = weapon.damage;
       this.dx = dx;
       this.dy = SPEED_MULTIPLIER * weapon.projectileSpeed;
-      this.setSize(4, 50);
       this.y = y - this.height;
    }
 
@@ -249,8 +242,7 @@ class Projectile extends GameObject {
 
 class ShooterObject extends GameObject {
    constructor(x, y, width, height, type, health, weapon) {
-      super(x, y, type, health);
-      this.setSize(width, height);
+      super(x, y, width, height, type, health);
       this.weapon = weapon;
    }
 
@@ -290,5 +282,32 @@ class UFO extends ShooterObject {
       else this.x -= this.dx;
 
       if (this.y > UFO.HOVER_HEIGHT) this.dy = 0;
+   }
+}
+
+class Word extends GameObject {
+   static LETTER_FONT_SIZE = 60;
+
+   constructor(word, maxY) {
+      super(0, 0, Word.LETTER_FONT_SIZE * (word.length - 1) * PIXEL_RATIO / 5, Word.LETTER_FONT_SIZE / PIXEL_RATIO, "word", 1);
+      this.dy = 0.5 * SPEED_MULTIPLIER;
+      this.word = word;
+      this.maxY = maxY * PIXEL_RATIO;
+   }
+
+   draw() {
+      getCanvas().font = `${Word.LETTER_FONT_SIZE * PIXEL_RATIO}px pixel`;
+      getCanvas().fillStyle = "#fff";
+      getCanvas().fillText(this.word, this.textX, this.y);
+   }
+
+   moveObject() {
+      if (this.y < this.maxY) this.y += this.dy;
+   }
+
+   create() {
+      this.textX = (game.BOARD_WIDTH - this.width) / 2;
+      this.width = game.BOARD_WIDTH;
+      addGameObject(this);
    }
 }

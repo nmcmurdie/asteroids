@@ -1,6 +1,6 @@
 @font-face {
     font-family: pixel;
-    src: url('res/pixelFont.TTF');
+    src: url('res/monogram.ttf');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -72,7 +72,7 @@ html {
    display: inline-block;
    height: 100%;
    line-height: 50px;
-   font-size: 22px;
+   font-size: 28px;
    color: var(--text-color);
    padding: 0 10px 0 34px;
    text-align: right;
