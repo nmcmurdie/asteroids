@@ -67,6 +67,8 @@ html {
    right: 0;
    height: 50px;
    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, .9));
+   opacity: 0;
+   transition: opacity .3s ease;
 }
 .hud-elem {
    display: inline-block;
@@ -115,6 +117,45 @@ html {
    position: absolute;
    width: 100%;
    height: 100%;
+}
+.start-game {
+   position: absolute;
+   bottom: 25%;
+   width: 100%;
+   height: 200px;
+   opacity: 0;
+   transition: opacity .3s ease;
+}
+.start-game.visible, .hud.visible {
+   opacity: 1;
+}
+.start-text {
+   position: absolute;
+   bottom: 0;
+   font-size: 28px;
+   width: 100%;
+   text-align: center;
+   color: #fff;
+   opacity: 0.7;
+   animation: text-fire 2.5s linear;
+   animation-iteration-count: infinite;
+}
+.text-fire {
+   background-color: rgba(255,255,255,.1);
+   padding: 4px 8px;
+   border-radius: 4px;
+   color: #fff;
+}
+@keyframes text-fire {
+   0% {
+      opacity: 0.7;
+   }
+   25% {
+      opacity: 0;
+   }
+   50% {
+      opacity: 0.7;
+   }
 }
 
 .slider {

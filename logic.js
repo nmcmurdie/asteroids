@@ -77,8 +77,9 @@ function getCanvas() {
 // Enable mobile controls
 function detectMobile() {
    let mobileControls = document.getElementById("mobile_controls");
-
    mobileControls.classList.remove("hidden");
+
+   document.getElementById("text_fire").textContent = "FIRE"
 
    hitControlThreshold = mobileControls.clientWidth / 3;
    moveControlThreshold = mobileControls.clientWidth / 1.5;
@@ -86,6 +87,16 @@ function detectMobile() {
    mobileControls.addEventListener("touchstart", processMovement, { passive: true });
    mobileControls.addEventListener("touchmove", processMovement, { passive: true });
    mobileControls.addEventListener("touchend", processMovement, { passive: true });
+}
+
+function toggleFireHint() {
+   let fireHint = document.getElementById("start_game"),
+      hud = document.getElementById("hud");
+   if (fireHint.classList.contains("visible")) {
+      fireHint.classList.remove("visible");
+      hud.classList.add("visible");
+   }
+   else fireHint.classList.add("visible");
 }
 
 // Move shooter left or right depending on touch position on controls

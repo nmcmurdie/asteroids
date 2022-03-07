@@ -28,7 +28,7 @@ class IntroLevel extends Level {
       let stages = [
          {
             time: 2_000,
-            objects: [new Word('A S T E R O I D S', 200)]
+            objects: [new Word('A S T E R 0 I D S', 0.4)]
          }
       ];
       super(stages, "earth.png", ["#00004B", "#1A237E", "#283593"]);

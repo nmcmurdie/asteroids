@@ -288,11 +288,12 @@ class UFO extends ShooterObject {
 class Word extends GameObject {
    static LETTER_FONT_SIZE = 60;
 
-   constructor(word, maxY) {
+   constructor(word, maxYPercent) {
       super(0, 0, 0, Word.LETTER_FONT_SIZE, "word", 1);
-      this.dy = 0.5 * SPEED_MULTIPLIER;
+      this.dy = 0.7 * SPEED_MULTIPLIER;
       this.word = word;
-      this.maxY = maxY * PIXEL_RATIO;
+      this.maxYPercent = maxYPercent;
+      this.stationary = false;
    }
 
    draw() {
@@ -304,9 +305,19 @@ class Word extends GameObject {
 
    moveObject() {
       if (this.y < this.maxY) this.y += this.dy;
+      else if (!this.stationary) {
+         this.stationary = true;
+         toggleFireHint();
+      }
+   }
+
+   destroy(source) {
+      super.destroy(source);
+      toggleFireHint();
    }
 
    create() {
+      this.maxY = game.BOARD_HEIGHT * this.maxYPercent;
       this.textX = game.BOARD_WIDTH / 2;
       this.width = game.BOARD_WIDTH;
       addGameObject(this);
