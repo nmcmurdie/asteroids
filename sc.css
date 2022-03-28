@@ -41,6 +41,7 @@ html {
    height: 100%;
    background-color: #e8416b;
    opacity: 0;
+   pointer-events: none;
 }
 .pane.damage-shield::after {
    background-color: #283593;
@@ -62,13 +63,140 @@ html {
    }
 }
 
+.shop {
+   position: absolute;
+   width: 450px;
+   height: 100%;
+   top: 0;
+   background-color: #200040;
+   color: #fff;
+   z-index: 1;
+   transform: scale(0);
+   transition: transform .3s ease;
+}
+.shop.visible {
+   transform: scale(1);
+}
+.shop::before, .shop::after {
+   content: "";
+   margin: 10px;
+   position: fixed;
+   width: 15%;
+   padding-bottom: 15%;
+   border: 10px solid #fff;
+   opacity: .2;
+   border-width: 10px 0 0 10px;
+}
+.shop::after {
+   border-width: 0 10px 10px 0;
+   bottom: 0;
+   right: 0;
+}
+.shop-title {
+   display: block;
+   position: relative;
+   font-size: 90px;
+   margin-top: 20%;
+   margin-bottom: 20%;
+   text-align: center;
+}
+.shop-body {
+   position: absolute;
+   width: 100%;
+   height: 120%;
+   overflow: scroll;
+}
+.shop-section {
+   display: block;
+   margin: 20px;
+}
+.shop-section-title {
+   display: block;
+   font-size: 42px;
+   margin: 20px 0 10px 0;
+}
+.shop-section-description {
+   display: block;
+   margin-bottom: 20px;
+   color: #dddddd;
+   font-size: 22px;
+}
+.shop-button {
+   position: relative;
+   width: 80px;
+   padding: 10px;
+   background-color: #2ECC71;
+   text-align: center;
+   font-size: 26px;
+   border-bottom: 6px solid #27AE60;
+   left: 50%;
+   transform: translateX(-50%);
+}
+.shop-button:active {
+   border-bottom: none;
+   transform: translate(-50%, 6px);
+}
+.shop-button span {
+   vertical-align: middle;
+}
+.shop-button-icon {
+   width: 24px;
+   vertical-align: middle;
+   margin-right: 6px;
+   pointer-events: none;
+}
+.shop-continue {
+   position: fixed;
+   width: 200px;
+   font-size: 36px;
+   padding: 20px;
+   bottom: 60px;
+}
+.shop-continue:active {
+   border-bottom: none;
+   transform: translateX(-50%);
+}
+.shop-item-container {
+   display: inline-block;
+}
+.shop-item {
+   position: relative;
+   display: inline-block;
+   width: 140px;
+   height: 180px;
+   background-color: rgba(255,255,255,.3);
+   margin: 6px;
+   vertical-align: top;
+}
+.shop-item::after {
+   content: attr(name);
+   position: absolute;
+   width: 100%;
+   height: 40px;
+   background-color: rgba(255,255,255,.3);
+   left: 0;
+   bottom: 0;
+   text-align: center;
+   line-height: 40px;
+   font-size: 22px;
+}
+.shop-item-img {
+   position: relative;
+   width: 100px;
+   left: 50%;
+   top: calc(50% - 20px);
+   transform: translate(-50%, -50%);
+   pointer-events: none;
+}
+
 .hud {
    position: absolute;
    right: 0;
    height: 50px;
    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, .9));
-   opacity: 0;
+   opacity: 1;
    transition: opacity .3s ease;
+   z-index: 1;
 }
 .hud.visible {
    opacity: 1;
@@ -139,7 +267,6 @@ html {
    position: absolute;
    bottom: 25%;
    width: 100%;
-   height: 200px;
    opacity: 0;
    transition: opacity .3s ease;
 }

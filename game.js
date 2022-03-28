@@ -30,6 +30,7 @@ const game = {
    BOARD_HEIGHT: 0,
    TICK_SPEED: 8,
    health: 10,
+   MAX_HEALTH: 10,
    money: 0,
    score: 0,
    shield: 0,
@@ -138,6 +139,7 @@ class BoosterItem extends GameObject {
    static BOOST_SHORT = 500;
    static BOOST_MEDIUM = 1000;
    static BOOST_LONG = 3000;
+   static BOOST_NO_DURATION = 0;
 
    constructor(x, y, width, height, type, duration) {
       super(x, y, width, height, type, 1);
@@ -152,6 +154,8 @@ class BoosterItem extends GameObject {
          new Timer(this.stop, this.duration);
       }
    }
+
+   stop() {}
 }
 
 class GunBoost extends BoosterItem {
@@ -166,6 +170,28 @@ class GunBoost extends BoosterItem {
 
    stop() {
       currentShip.mainWeapon.fireRate += 300;
+   }
+}
+
+class HealthBoost extends BoosterItem {
+   constructor(x, bonus) {
+      super(x, 0, 45, 45, "healthPack", BoosterItem.BOOST_NO_DURATION)
+      this.bonus = bonus;
+   }
+
+   use() {
+      updateHUDElem('health', this.bonus);
+   }
+}
+
+class ShieldBoost extends BoosterItem {
+   constructor(x, bonus) {
+      super(x, 0, 45, 45, "shieldPack", BoosterItem.BOOST_NO_DURATION)
+      this.bonus = bonus;
+   }
+
+   use() {
+      updateHUDElem('shield', this.bonus);
    }
 }
 
@@ -322,4 +348,11 @@ class Word extends GameObject {
       this.width = game.BOARD_WIDTH;
       addGameObject(this);
    }
+}
+
+const shop = {
+   powerups: [
+      [new HealthBoost(0, 5), "Health Pack x5", 100],
+      [new ShieldBoost(0, 3), "Shield Pack x3", 100]
+   ]
 }

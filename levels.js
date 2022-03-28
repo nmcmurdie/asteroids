@@ -20,6 +20,11 @@ class Level {
    start() {
       document.getElementById("hud_level").style.backgroundImage = `url(res/${this.icon})`;
       document.getElementById("pane_main").style.background = `linear-gradient(to bottom, ${this.background[0]} 0%, ${this.background[1]} 80%, ${this.background[2]})`;
+      this.setStatusColor();
+   }
+
+   setStatusColor() {
+      changeStatusBarColor(this.background[0]);
    }
 }
 

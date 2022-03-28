@@ -1,4 +1,5 @@
 'use strict'
+const SHOP_BG_COLOR = "#200040";
 var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map, mapWidth, mapHeight;
 var stageFinished = false, isGameOver = false, isGamePaused = false;
 
@@ -32,6 +33,7 @@ window.addEventListener("load", () => {
    setupCanvas();
    startGame();
    startLevel(game.levels[game.currentLevel]);
+   addClickListeners();
    window.requestAnimationFrame(drawFrame);
 });
 
@@ -39,6 +41,10 @@ window.addEventListener("keydown", handleKeypress);
 window.addEventListener("keyup", handleKeypress);
 window.addEventListener("orientationchange", changeOrientation);
 window.addEventListener("gesturestart", e => e.preventDefault());
+
+function addClickListeners() {
+   document.getElementById("shop_continue").addEventListener("click", closeShop);
+}
 
 // Handle mobile user changing orientation
 function changeOrientation() {
@@ -87,6 +93,54 @@ function detectMobile() {
    mobileControls.addEventListener("touchstart", processMovement, { passive: true });
    mobileControls.addEventListener("touchmove", processMovement, { passive: true });
    mobileControls.addEventListener("touchend", processMovement, { passive: true });
+}
+
+const changeStatusBarColor = color => {
+   if (isMobile()) document.querySelector('meta[name=theme-color]').content = color
+};
+
+function openShop() {
+   const shopContainer = document.getElementById("shop"),
+         powerupContainer = document.getElementById("shop_powerups");
+
+   shop.powerups.forEach(powerup => {
+      const item = createShopItem(powerup[1], powerup[0].getAsset(), powerup[2]);
+      powerupContainer.appendChild(item);
+   });
+
+   shopContainer.classList.add("visible");
+   changeStatusBarColor(SHOP_BG_COLOR);
+}
+
+function closeShop() {
+   const shopContainer = document.getElementById("shop");
+   shopContainer.classList.remove("visible");
+   const currentLevel = game.levels[game.currentLevel];
+   currentLevel.setStatusColor();
+}
+
+function createShopItem(name, img, cost) {
+   let container = document.createElement('div'),
+         item = document.createElement('div');
+   container.classList.add("shop-item-container");
+   item.classList.add("shop-item");
+   img.classList.add("shop-item-img");
+   item.appendChild(img);
+   item.setAttribute("name", name);
+
+   let btn = document.createElement('div');
+   btn.classList.add("shop-button", "shop-buy");
+   let btn_img = new Image(),
+      btn_text = document.createElement('span');
+   btn_img.src = "res/money.png";
+   btn_img.classList.add("shop-button-icon");
+   btn.appendChild(btn_img);
+   btn_text.appendChild(document.createTextNode(cost));
+   btn.appendChild(btn_text);
+   container.appendChild(item);
+   container.appendChild(btn);
+   
+   return container;
 }
 
 function toggleFireHint() {
@@ -264,6 +318,7 @@ function updateHUD() {
 function updateHUDElem(elem, value, setValue) {
    let hudElem = document.getElementById(`hud_${elem}`);
    game[elem] = setValue ? value : game[elem] + value;
+   game.health = Math.min(game.health, game.MAX_HEALTH);
    updateHUD();
 
    hudElem.classList.add("hud-animate");
