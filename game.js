@@ -93,6 +93,7 @@ class GameObject {
       this.health = health;
       this.type = type;
       this.dx = 0;
+      this.assetFormat = 'png';
       this.id = Math.random().toString(16).slice(2);
    }
 
@@ -100,7 +101,7 @@ class GameObject {
       if (this.asset) return this.asset;
       else {
          this.asset = new Image();
-         this.asset.src = `res/${this.type}.png`;
+         this.asset.src = `res/${this.type}.${this.assetFormat}`;
          return this.asset;
       }
    }
@@ -173,25 +174,94 @@ class GunBoost extends BoosterItem {
    }
 }
 
-class HealthBoost extends BoosterItem {
-   constructor(x, bonus) {
-      super(x, 0, 45, 45, "healthPack", BoosterItem.BOOST_NO_DURATION)
+class ShopItem extends GameObject {
+   constructor(type, name, cost, count) {
+      super(0, 0, 0, 0, type, 1);
+      this.name = name;
+      this.cost = cost;
+      this.count = count;
+   }
+
+   getName() {
+      return this.name + (this.count > 1 ? ` x${this.count}` : '');
+   }
+
+   getCost() {
+      return this.cost;
+   }
+
+   canAfford() {
+      return game.money >= this.cost;
+   }
+
+   buy() {
+      updateHUDElem('money', -this.cost);
+   }
+}
+
+class HealthPack extends ShopItem {
+   static ITEM_COST = 100;
+
+   constructor(bonus) {
+      super("healthPack", "Health Pack", HealthPack.ITEM_COST, bonus);
       this.bonus = bonus;
    }
 
-   use() {
+   buy() {
+      super.buy();
       updateHUDElem('health', this.bonus);
    }
 }
 
-class ShieldBoost extends BoosterItem {
-   constructor(x, bonus) {
-      super(x, 0, 45, 45, "shieldPack", BoosterItem.BOOST_NO_DURATION)
+class ShieldPack extends ShopItem {
+   static ITEM_COST = 100;
+
+   constructor(bonus) {
+      super("shieldPack", "Shield Pack", ShieldPack.ITEM_COST, bonus);
       this.bonus = bonus;
    }
 
-   use() {
+   buy() {
+      super.buy();
       updateHUDElem('shield', this.bonus);
+   }
+}
+
+class DiceOfFate extends ShopItem {
+   static ITEM_COST = 200;
+
+   constructor() {
+      super("diceOfFate", "Dice of Fate", DiceOfFate.ITEM_COST);
+      this.assetFormat = 'gif';
+   }
+
+   buy() {
+      super.buy();
+      alert("DICE_OF_FATE");
+   }
+}
+
+class RocketPack extends ShopItem {
+   static ITEM_COST = 200;
+
+   constructor(rockets) {
+      super("rocketPack", "Rockets x5", RocketPack.ITEM_COST);
+   }
+
+   buy() {
+      alert("Not implemented yet!");
+   }
+}
+
+class AdvancedRocket extends ShopItem {
+   static ITEM_COST = 500;
+
+   constructor() {
+      super("rocket_upgraded", "T-3 Starship", AdvancedRocket.ITEM_COST);
+   }
+
+   buy() {
+      alert("Not implemented yet!");
    }
 }
 
@@ -333,7 +403,7 @@ class Word extends GameObject {
       if (this.y < this.maxY) this.y += this.dy;
       else if (!this.stationary) {
          this.stationary = true;
-         toggleFireHint();
+         toggleFireHint("begin the game");
       }
    }
 
@@ -350,9 +420,70 @@ class Word extends GameObject {
    }
 }
 
+class SpinningObject extends GameObject {
+   constructor(x, y, width, height, type, health, rotSpeed) {
+      super(x, y, width, height, type, health);
+      this.rotSpeed = rotSpeed;
+      this.rotation = 0;
+   }
+
+   rotate() {
+      this.rotation = (this.rotation + this.rotSpeed) % 360;
+   }
+
+   draw() {
+      getCanvas().save();
+      getCanvas().translate(this.x + this.width/2, this.y - this.height/2);
+      getCanvas().rotate(this.rotation * Math.PI / 180);
+      getCanvas().drawImage(this.getAsset(), -this.width/2, -this.height/2, this.width, this.height);
+      getCanvas().restore();
+   }
+}
+
+class ShopPortal extends SpinningObject {
+   constructor(maxYPercent) {
+      super(0, 0, 66, 63, "shopPortal", 1, 1);
+      this.dy = 0.7 * SPEED_MULTIPLIER;
+      this.maxYPercent = maxYPercent;
+      this.stationary = false;
+   }
+
+   moveObject() {
+      if (this.y < this.maxY) this.y += this.dy;
+      else if (!this.stationary) {
+         this.stationary = true;
+         toggleFireHint("open the shop");
+      }
+   }
+
+   hurt(damage, source) {
+      if (this.stationary) this.health -= damage;
+      if (this.health <= 0) this.destroy(source);
+   }
+
+   destroy(source) {
+      super.destroy(source);
+      toggleFireHint();
+      openShop();
+   }
+
+   create() {
+      this.maxY = game.BOARD_HEIGHT * this.maxYPercent;
+      this.x = game.BOARD_WIDTH / 2 - (this.width / 2);
+      addGameObject(this);
+   }
+}
+
 const shop = {
    powerups: [
-      [new HealthBoost(0, 5), "Health Pack x5", 100],
-      [new ShieldBoost(0, 3), "Shield Pack x3", 100]
+      new HealthPack(5),
+      new ShieldPack(3),
+      new DiceOfFate()
+   ],
+   weapons: [
+      new RocketPack(5)
+   ],
+   starships: [
+      new AdvancedRocket()
    ]
 }

@@ -1,7 +1,7 @@
 'use strict'
-const SHOP_BG_COLOR = "#200040";
+const SHOP_BG_COLOR = "#300060";
 var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map, mapWidth, mapHeight;
-var stageFinished = false, isGameOver = false, isGamePaused = false;
+var stageFinished = false, isGameOver = false, isGamePaused = true;
 
 // Determine if user is on a mobile device
 function isMobile() {
@@ -48,11 +48,11 @@ function addClickListeners() {
 
 // Handle mobile user changing orientation
 function changeOrientation() {
-   if (isLandscape() && !isGamePaused) {
+   if (isLandscape()) {
       alert("Please rotate screen to portrait mode");
       pauseGame();
    }
-   else if(isGamePaused && !isGameOver) startGame();
+   else if(!isGameOver) startGame();
 }
 
 // Setup the game canvas
@@ -99,14 +99,26 @@ const changeStatusBarColor = color => {
    if (isMobile()) document.querySelector('meta[name=theme-color]').content = color
 };
 
+const addShopItem = (category, container, object, index) => {
+   const item = createShopItem(object, category, index);
+   container.appendChild(item);
+};
+
 function openShop() {
    const shopContainer = document.getElementById("shop"),
-         powerupContainer = document.getElementById("shop_powerups");
+         powerupContainer = document.getElementById("shop_powerups"),
+         weaponContainer = document.getElementById("shop_weapons"),
+         starshipContainer = document.getElementById("shop_starships");
 
-   shop.powerups.forEach(powerup => {
-      const item = createShopItem(powerup[1], powerup[0].getAsset(), powerup[2]);
-      powerupContainer.appendChild(item);
-   });
+   pauseGame();
+
+   while (powerupContainer.firstChild) powerupContainer.firstChild.remove();
+   while (weaponContainer.firstChild) weaponContainer.firstChild.remove();
+   while (starshipContainer.firstChild) starshipContainer.firstChild.remove();
+   
+   shop.powerups.forEach((obj, i) => addShopItem("powerups", powerupContainer, obj, i));
+   shop.weapons.forEach((obj, i) => addShopItem("weapons", weaponContainer, obj, i));
+   shop.starships.forEach((obj, i) => addShopItem("starships", starshipContainer, obj, i));
 
    shopContainer.classList.add("visible");
    changeStatusBarColor(SHOP_BG_COLOR);
@@ -117,40 +129,68 @@ function closeShop() {
    shopContainer.classList.remove("visible");
    const currentLevel = game.levels[game.currentLevel];
    currentLevel.setStatusColor();
+   startGame();
 }
 
-function createShopItem(name, img, cost) {
+function createShopItem(powerup, category, index) {
+   let name = powerup.getName(), img = powerup.getAsset(), cost = powerup.getCost();
    let container = document.createElement('div'),
          item = document.createElement('div');
    container.classList.add("shop-item-container");
+
    item.classList.add("shop-item");
    img.classList.add("shop-item-img");
    item.appendChild(img);
    item.setAttribute("name", name);
 
-   let btn = document.createElement('div');
-   btn.classList.add("shop-button", "shop-buy");
-   let btn_img = new Image(),
-      btn_text = document.createElement('span');
-   btn_img.src = "res/money.png";
-   btn_img.classList.add("shop-button-icon");
-   btn.appendChild(btn_img);
-   btn_text.appendChild(document.createTextNode(cost));
-   btn.appendChild(btn_text);
+   let btn = createShopButton(category, index, cost, !powerup.canAfford());
+   
    container.appendChild(item);
    container.appendChild(btn);
    
    return container;
 }
 
-function toggleFireHint() {
+// Create a 'buy' button for a shop item
+function createShopButton(category, index, cost, disabled) {
+   let btn = document.createElement('div');
+   btn.classList.add("shop-button", "shop-buy");
+   btn.setAttribute("category", category);
+   btn.setAttribute("index", index);
+
+   btn.addEventListener("click", evt => {
+      let category = evt.target.getAttribute('category'),
+         index = evt.target.getAttribute('index');
+      shop[category][+index].buy();
+      openShop();
+   });
+
+   if (disabled) btn.classList.add("disabled");
+
+   let btn_img = new Image(),
+      btn_text = document.createElement('span');
+
+   btn_img.src = "res/money.png";
+   btn_img.classList.add("shop-button-icon");
+
+   btn.appendChild(btn_img);
+   btn_text.appendChild(document.createTextNode(cost));
+   btn.appendChild(btn_text);
+   return btn;
+}
+
+function toggleFireHint(hint) {
    let fireHint = document.getElementById("start_game"),
+      fireText = document.getElementById("desc_fire"),
       hud = document.getElementById("hud");
-   if (fireHint.classList.contains("visible")) {
+   if (!hint) {
       fireHint.classList.remove("visible");
       hud.classList.add("visible");
    }
-   else fireHint.classList.add("visible");
+   else {
+      fireText.textContent = hint;
+      fireHint.classList.add("visible");
+   }
 }
 
 // Move shooter left or right depending on touch position on controls
@@ -201,9 +241,11 @@ function pauseGame() {
 
 // Resume playback of the game and associated timers
 function startGame() {
-   gameLoop = setInterval(tick, game.TICK_SPEED);
-   game.timers.forEach(timer => timer.start());
-   isGamePaused = false;
+   if (isGamePaused && !(isLandscape() && isMobile())) {
+      gameLoop = setInterval(tick, game.TICK_SPEED);
+      game.timers.forEach(timer => timer.start());
+      isGamePaused = false;
+   }
 }
 
 // End the game once user has died
@@ -233,7 +275,10 @@ function tick() {
    if (controls.holdingFire) fireWeapon(currentShip.mainWeapon);
    if (controls.holdingSecondaryFire) fireWeapon(currentShip.secondaryWeapon);
 
-   game.objects.forEach(obj => obj.moveObject());
+   game.objects.forEach(obj => {
+      obj.moveObject();
+      if (obj instanceof SpinningObject) obj.rotate();
+   });
 
    for (let i = 0; i < game.projectiles.length; ++i) {
       let proj = game.projectiles[i];
@@ -292,7 +337,7 @@ function finishLevel() {
       startLevel(game.levels[++game.currentLevel]);
    }
    else {
-      alert("GAME WON!");
+      console.log("GAME WON!");
    }
 }
 
