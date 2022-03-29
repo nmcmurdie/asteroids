@@ -1,5 +1,6 @@
 'use strict'
 const SHOP_BG_COLOR = "#300060";
+const TOAST_DURATION = 4000;
 var gameLoop, currentStage, hitControlThreshold, moveControlThreshold, canvas, map, mapWidth, mapHeight;
 var stageFinished = false, isGameOver = false, isGamePaused = true;
 
@@ -11,6 +12,13 @@ function isMobile() {
 };
 
 const isLandscape = () => screen.availWidth > screen.availHeight;
+
+const percentChange = (initial, updated) => {
+   let change = updated >= initial ? 
+               (updated / initial) - 1 :
+               (initial / updated) - 1;
+   return Math.round(100 * change);
+}
 
 Array.prototype.remove = function() {
    let what, a = arguments, L = a.length, ax;
@@ -53,6 +61,19 @@ function changeOrientation() {
       pauseGame();
    }
    else if(!isGameOver) startGame();
+}
+
+function toast(msg, isNegative) {
+   const container = document.getElementById("toasts");
+   let item = document.createElement("div");
+   item.classList.add("toast");
+   item.textContent = msg;
+   container.appendChild(item);
+   if (isNegative !== void 0) item.classList.add(isNegative ? "negative" : "positive");
+   setTimeout(() => {
+      item.classList.add("hidden");
+      setTimeout(() => item.remove(), 1500);
+   }, 2000 + TOAST_DURATION);
 }
 
 // Setup the game canvas

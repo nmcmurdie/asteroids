@@ -101,11 +101,16 @@ class ShopLevel extends Level {
       let stages = [
          {
             time: 2_000,
-            objects: [new ShopPortal(0.4)]
+            objects: [new ShopPortal(0.5)]
          }
       ];
       super(stages, "moon.png", ["#000000", "#12121f", "#1c1c2c"])
    }
 }
  
-game.levels = [ new IntroLevel(), new EarthLevel(), new MoonLevel(), new ShopLevel() ];
+game.levels = [
+   new IntroLevel(),
+   new EarthLevel(),
+   new MoonLevel(),
+   new ShopLevel()
+];

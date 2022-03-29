@@ -237,12 +237,26 @@ class DiceOfFate extends ShopItem {
 
    buy() {
       super.buy();
-      alert("DICE_OF_FATE");
+      // fireRate, projectileSpeed -3.5, damage, pierce
+      let currentWeapon = currentShip.mainWeapon;
+      let fireRate = Math.ceil((Math.random() * 400) + 200);
+      let fireRateChange = percentChange(currentWeapon.fireRate, fireRate);
+      let fireRateNegative = fireRate >= currentWeapon.fireRate;
+      toast(`Fire rate ${fireRateNegative ? 'decreased' : 'increased'} by ${fireRateChange}%`, fireRateNegative);
+      currentShip.mainWeapon.fireRate = fireRate;
+
+      let projSpeed = Math.max(Math.random() * 5 + 1, 2, 1).toFixed(1);
+      let projSpeedChange = percentChange(projSpeed, -1 * currentWeapon.projectileSpeed);
+      let projSpeedNegative = projSpeed < -1 * currentWeapon.projectileSpeed;
+      setTimeout(() => {
+         toast(`Projectile speed ${projSpeedNegative ? 'decreased' : 'increased'} by ${projSpeedChange}%`, projSpeedNegative);
+         currentWeapon.projectileSpeed = -1 * projSpeed;
+      }, 700);
    }
 }
 
 class RocketPack extends ShopItem {
-   static ITEM_COST = 200;
+   static ITEM_COST = 250;
 
    constructor(rockets) {
       super("rocketPack", "Rockets x5", RocketPack.ITEM_COST);

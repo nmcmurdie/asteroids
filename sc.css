@@ -209,7 +209,7 @@ html {
    right: 0;
    height: 50px;
    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, .9));
-   opacity: 1;
+   opacity: 0;
    transition: opacity .3s ease;
    z-index: 1;
 }
@@ -257,6 +257,42 @@ html {
    100% {
       transform: scale(1);
    }
+}
+
+.toasts {
+   position: absolute;
+   width: 100%;
+   z-index: 1;
+}
+.toast {
+   position: relative;
+   font-size: 24px;
+   text-align: center;
+   padding: 20px;
+   background-color: rgba(0, 0, 0, .8);
+   margin: 20px;
+   color: #fff;
+   animation: toast-in 1s ease;
+   transition: opacity 1s ease;
+}
+.toast.positive {
+   color: green;
+}
+.toast.negative {
+   color: red;
+}
+@keyframes toast-in {
+   from {
+      margin-top: -100%;
+      opacity: 0;
+   }
+   to {
+      margin-top: 20px;
+      opacity: 1;
+   }
+}
+.toast.hidden {
+   opacity: 0;
 }
 
 .map {
